@@ -117,6 +117,21 @@ class BiLSTMCharFeatureRestorer:
         """
 ```
 
+Example usage:
+
+```python
+bcfr = BiLSTMCharFeatureRestorer(
+    root_folder=MODEL_FOLDER,
+    capitalisation=False,
+    spaces=False,
+    other_features=list('。、？'),
+    seq_length=200,
+    char_shift=3
+)
+```
+
+<img src="readme-img/bcfr_ex1.PNG"></img>
+
 #### Load a saved instance
 
 ```python
@@ -154,6 +169,14 @@ class BiLSTMCharFeatureRestorer:
                                     "This is a sentence.")        
         """
 ```
+
+Example usage:
+
+```python
+bcfr.load_data(train_texts)
+```
+
+<img src="readme-img/bcfr_ex2.PNG"></img>
 
 #### 2. Add a model
 
