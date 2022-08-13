@@ -22,8 +22,8 @@ MESSAGE_LOADED_GRID_SEARCH = """\
 Loaded BiLSTMCharFeatureRestorerGridSearch with the below attributes from \
 {root_folder}"""
 MESSAGE_SKIPPING_PARAMS = """\
-Skipping parameter combination at index {i} because results for this parameter \
-combination are already in the grid search log.
+Skipping parameter combination at index {i} because results \
+are already in the grid search log.
 """
 
 ERROR_GRID_SEARCH_EXISTS = """\
@@ -75,9 +75,9 @@ class BiLSTMCharFeatureRestorerGridSearch:
         self.show_attrs()
 
     # ====================
-    def root_folder(self, grid_search_name):
+    def root_folder(self):
 
-        os.path.join(self.parent.grid_search_path(), grid_search_name)
+        os.path.join(self.parent.grid_search_path(), self.grid_search_name)
 
     # ====================
     @classmethod
@@ -149,7 +149,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
     def grid_search_folder(self):
 
         gs_folder = os.path.join(
-            self.root_folder,
+            self.root_folder(),
             'grid_searches',
             self.grid_search_name
         )
@@ -159,7 +159,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
     # ====================
     def log_path(self) -> str:
 
-        return os.path.join(self.root_folder, 'log.csv')
+        return os.path.join(self.root_folder(), 'log.csv')
 
     # ====================
     def get_log_df(self) -> pd.DataFrame:
