@@ -146,12 +146,12 @@ class BiLSTMCharFeatureRestorerGridSearch:
             self.save_log(log_df)
 
     # ====================
-    def grid_search_folder(self, grid_search_name):
+    def grid_search_folder(self):
 
         gs_folder = os.path.join(
             self.root_folder,
             'grid_searches',
-            grid_search_name
+            self.grid_search_name
         )
         mk_dir_if_does_not_exist(gs_folder)
         return gs_folder
