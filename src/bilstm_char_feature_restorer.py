@@ -786,12 +786,12 @@ class BiLSTMCharFeatureRestorer:
             try_clear_output()
             display_or_print(gs_df)
             print(parameters_)
-            if len(
-                gs_df.query(
-                    f'units=={units} and batch_size=={batch_size} ' +
-                    f'and dropout=={dropout} and recur_dropout=={recur_dropout}'
-                )
-            ) > 0:
+            if gs_df.query(
+                f"units=={parameters['units']} and " +
+                f"batch_size=={parameters['batch_size']} and " +
+                f"dropout=={parameters['dropout']} and " +
+                f"recur_dropout=={parameters['recur_dropout']}"
+            ).any():
                 print(MESSAGE_SKIPPING_PARAMS)
                 continue
             model_args = {
