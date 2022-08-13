@@ -767,7 +767,13 @@ class BiLSTMCharFeatureRestorer:
 
         attrs = locals()
         del attrs['self']
-        self.model = BiLSTMCharFeatureRestorerGridSearch(self, **attrs)
+        self.grid_search = BiLSTMCharFeatureRestorerGridSearch(self, **attrs)
+
+    # ====================
+    def load_grid_search(self, grid_search_name: str):
+
+        self.grid_search = \
+            BiLSTMCharFeatureRestorerGridSearch.load(self, grid_search_name)
 
     # ====================
     def grid_search_path(self):
