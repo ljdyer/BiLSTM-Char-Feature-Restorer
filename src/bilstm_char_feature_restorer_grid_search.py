@@ -142,20 +142,20 @@ class BiLSTMCharFeatureRestorerGridSearch:
                 'keep_size': self.keep_size
             }
             print(model_args)
-            # try:
-            self.parent.add_model(
-                **model_args, overwrite=True, supress_save_msg=True
-            )
-            self.parent.model.train_idxs = self.train_idxs
-            self.parent.model.val_idxs = self.vals_idxs
-            start_time = time.time()
-            self.parent.model.train(self.epochs)
-            gs_row = {**model_args, 'Time': time.time() - start_time}
-            model_log_df = pd.read_csv(self.parent.model.log_path())
-            last_epoch_info = model_log_df.iloc[-1].to_dict()
-            gs_row = {**gs_row, **last_epoch_info}
-            # except Exception as e:
-            #     gs_row = {**model_args, 'Exception': e}
+            try:
+                self.parent.add_model(
+                    **model_args, overwrite=True, supress_save_msg=True
+                )
+                self.parent.model.train_idxs = self.train_idxs
+                self.parent.model.val_idxs = self.val_idxs
+                start_time = time.time()
+                self.parent.model.train(self.epochs)
+                gs_row = {**model_args, 'Time': time.time() - start_time}
+                model_log_df = pd.read_csv(self.parent.model.log_path())
+                last_epoch_info = model_log_df.iloc[-1].to_dict()
+                gs_row = {**gs_row, **last_epoch_info}
+            except Exception as e:
+                gs_row = {**model_args, 'Exception': e}
             log_df = log_df.append(gs_row, ignore_index=True)
             self.save_log(log_df)
 
