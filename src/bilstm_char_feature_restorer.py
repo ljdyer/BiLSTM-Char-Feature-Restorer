@@ -788,8 +788,8 @@ class BiLSTMCharFeatureRestorer:
             print(parameters_)
             if len(
                 gs_df.query(
-                    'units=={units} and batch_size=={batch_size} ' + \
-                    'and dropout=={dropout} and recur_dropout=={recur_dropout}'
+                    f'units=={units} and batch_size=={batch_size} ' +
+                    f'and dropout=={dropout} and recur_dropout=={recur_dropout}'
                 )
             ) > 0:
                 print(MESSAGE_SKIPPING_PARAMS)
