@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn.model_selection import ParameterGrid, train_test_split
 
 from helper.misc import (try_clear_output, display_or_print, load_file,
-                         mk_dir_if_does_not_exist, save_file)
+                         mk_dir_if_does_not_exist, save_file, display_dict)
 
 GRID_SEARCH_ATTRS_FNAME = 'GRID_SEARCH_ATTRS.pickle'
 
@@ -73,6 +73,17 @@ class BiLSTMCharFeatureRestorerGridSearch:
         save_file(attrs, attrs_path)
         print(MESSAGE_SAVED_GRID_SEARCH.format(root_folder=self.root_folder()))
         self.show_attrs()
+
+    # ====================
+    def attrs_path(self):
+
+        return os.path.join(self.root_folder(), GRID_SEARCH_ATTRS_FNAME)
+
+    # ====================
+    def show_attrs(self):
+
+        attrs = self.__dict__.copy()
+        display_dict(attrs)
 
     # ====================
     def root_folder(self):
