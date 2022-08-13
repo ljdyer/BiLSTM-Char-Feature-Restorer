@@ -39,8 +39,8 @@ class BiLSTMCharFeatureRestorerGridSearch:
     def __init__(self, parent, **kwargs):
 
         self.parent = parent
-        grid_search_path = self.root_folder()
         self.__dict__.update(kwargs)
+        grid_search_path = self.root_folder()
         if os.path.exists(grid_search_path):
             raise ValueError(
                 ERROR_GRID_SEARCH_EXISTS.format(
