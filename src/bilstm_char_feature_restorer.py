@@ -786,14 +786,15 @@ class BiLSTMCharFeatureRestorer:
             try_clear_output()
             display_or_print(gs_df)
             print(parameters_)
-            if gs_df.query(
+            print(len(gs_df.query(
                 f"units=={parameters_['units']} and " +
                 f"batch_size=={parameters_['batch_size']} and " +
                 f"dropout=={parameters_['dropout']} and " +
                 f"recur_dropout=={parameters_['recur_dropout']}"
-            ).any():
-                print(MESSAGE_SKIPPING_PARAMS)
-                continue
+            )))
+            continue
+                # print(MESSAGE_SKIPPING_PARAMS)
+                # continue
             model_args = {
                 'model_name': f"{grid_search_name}_{i}",
                 'units': parameters_['units'],
