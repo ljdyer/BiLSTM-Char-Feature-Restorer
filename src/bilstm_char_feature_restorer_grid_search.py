@@ -77,7 +77,9 @@ class BiLSTMCharFeatureRestorerGridSearch:
     # ====================
     def root_folder(self):
 
-        os.path.join(self.parent.grid_search_path(), self.grid_search_name)
+        return os.path.join(
+            self.parent.grid_search_path(), self.grid_search_name
+        )
 
     # ====================
     @classmethod
