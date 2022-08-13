@@ -48,6 +48,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
             )
         else:
             mk_dir_if_does_not_exist(grid_search_path)
+        self.set_param_combos()
         self.train_val_split()
         self.save()
         self.run_grid_search()
@@ -110,7 +111,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
         self.run_grid_search()
 
     # ====================
-    def get_param_combos(self):
+    def set_param_combos(self):
 
         self.param_combos = list(ParameterGrid({
             'units': self.units,
@@ -124,7 +125,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
     def run_grid_search(self):
 
         log_df = self.get_log_df()
-        for i, parameters_ in enumerate(self.parameters):
+        for i, parameters in enumerate(self.param_combos):
             try_clear_output()
             display_or_print(log_df)
             model_name = self.model_name(i)
@@ -133,10 +134,10 @@ class BiLSTMCharFeatureRestorerGridSearch:
                 continue
             model_args = {
                 'model_name': self.model_name(i),
-                'units': parameters_['units'],
-                'batch_size': parameters_['batch_size'],
-                'dropout': parameters_['dropout'],
-                'recur_dropout': parameters_['recur_dropout'],
+                'units': parameters['units'],
+                'batch_size': parameters['batch_size'],
+                'dropout': parameters['dropout'],
+                'recur_dropout': parameters['recur_dropout'],
                 'val_size': self.val_size,
                 'keep_size': self.keep_size
             }
