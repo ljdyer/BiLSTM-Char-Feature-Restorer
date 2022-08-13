@@ -778,6 +778,7 @@ class BiLSTMCharFeatureRestorer:
         log_path = self.grid_search_log(grid_search_name)
         if os.path.exists(log_path):
             print(MESSAGE_GRID_SEARCH_EXISTS.format(gs_name=grid_search_name))
+            gs_df = pd.read_csv(log_path)
         else:
             gs_df = pd.DataFrame(columns=GS_DF_COLS)
             gs_df.to_csv(log_path, index=False)
@@ -817,7 +818,7 @@ class BiLSTMCharFeatureRestorer:
             except Exception as e:
                 gs_row = {**model_args, 'Exception': e}
             gs_df = gs_df.append(gs_row, ignore_index=True)
-            gs_df.to_csv(self.grid_search_log(grid_search_name), index=False)
+            gs_df.to_csv(log_path, index=False)
 
     # ====================
     def grid_search_folder(self, grid_search_name):
