@@ -755,15 +755,15 @@ class BiLSTMCharFeatureRestorer:
     # === GRID SEARCH ===
 
     # ====================
-    def grid_search(self,
-                    grid_search_name: str,
-                    units: Union[int, list],
-                    batch_size: Union[int, list],
-                    dropout: Union[float, list],
-                    recur_dropout: Union[float, list],
-                    keep_size: float,
-                    val_size: float,
-                    epochs: int):
+    def add_grid_search(self,
+                        grid_search_name: str,
+                        units: Union[int, list],
+                        batch_size: Union[int, list],
+                        dropout: Union[float, list],
+                        recur_dropout: Union[float, list],
+                        keep_size: float,
+                        val_size: float,
+                        epochs: int):
 
         attrs = locals()
         del attrs['self']

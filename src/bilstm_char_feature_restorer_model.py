@@ -56,7 +56,7 @@ class BiLSTMCharFeatureRestorerModel:
             del attrs['model']
         attrs_path = self.attrs_path()
         save_file(attrs, attrs_path)
-        if self.supress_save_msg is True:
+        if self.supress_save_msg is False:
             print(MESSAGE_SAVED_MODEL.format(root_folder=self.root_folder()))
         self.show_attrs()
 

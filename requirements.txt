@@ -4,3 +4,4 @@ tqdm
 sklearn
 uniseg
 pandas
+psutil
