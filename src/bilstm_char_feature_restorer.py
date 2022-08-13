@@ -787,10 +787,10 @@ class BiLSTMCharFeatureRestorer:
             display_or_print(gs_df)
             print(parameters_)
             if gs_df.query(
-                f"units=={parameters['units']} and " +
-                f"batch_size=={parameters['batch_size']} and " +
-                f"dropout=={parameters['dropout']} and " +
-                f"recur_dropout=={parameters['recur_dropout']}"
+                f"units=={parameters_['units']} and " +
+                f"batch_size=={parameters_['batch_size']} and " +
+                f"dropout=={parameters_['dropout']} and " +
+                f"recur_dropout=={parameters_['recur_dropout']}"
             ).any():
                 print(MESSAGE_SKIPPING_PARAMS)
                 continue
