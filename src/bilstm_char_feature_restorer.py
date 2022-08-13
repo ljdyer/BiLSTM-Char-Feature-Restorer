@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import time
 from random import sample
 from typing import Any, List, Union
 
@@ -11,19 +10,20 @@ import psutil
 import tensorflow
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from sklearn.model_selection import ParameterGrid
 from tensorflow.keras.utils import to_categorical
 
+from bilstm_char_feature_restorer_grid_search import \
+    BiLSTMCharFeatureRestorerGridSearch
 from bilstm_char_feature_restorer_model import BiLSTMCharFeatureRestorerModel
 from helper.misc import (Int_or_Tuple, Str_or_List, Str_or_List_or_Series,
                          display_dict, display_or_print, get_tqdm, len_gclust,
                          list_gclust, load_file, mk_dir_if_does_not_exist,
                          only_or_all, save_file, show_ram_used,
-                         str_or_list_or_series_to_list, str_or_list_to_list,
-                         try_clear_output)
+                         str_or_list_or_series_to_list, str_or_list_to_list)
 
 CLASS_ATTRS_FNAME = 'CLASS_ATTRS.pickle'
 MODELS_PATH_NAME = 'models'
+GRID_SEARCH_PATH_NAME = 'grid_search'
 
 ASSETS = {
     'CLASS_ATTRS': CLASS_ATTRS_FNAME,
@@ -36,12 +36,6 @@ ASSETS = {
     'X': 'X.npy',
     'Y': 'Y.npy',
 }
-
-GS_DF_COLS = [
-    'model_name', 'units', 'batch_size', 'dropout', 'recur_dropout',
-    'keep_size', 'val_size', 'epoch', 'loss', 'accuracy', 'val_loss',
-    'val_accuracy', 'Time', 'Exception'
-]
 
 # General messages
 SAVED_RAW_SAMPLES = "Saved {num_samples} samples in 'X_RAW' and 'Y_RAW'"
@@ -255,7 +249,9 @@ class BiLSTMCharFeatureRestorer:
                   dropout: float,
                   recur_dropout: float,
                   keep_size: float,
-                  val_size: float):
+                  val_size: float,
+                  overwrite: bool = False,
+                  supress_save_msg: bool = False):
         """Create a new BiLSTM model.
 
         All models assets are saved in the 'models' subfolder of the
@@ -769,82 +765,17 @@ class BiLSTMCharFeatureRestorer:
                     val_size: float,
                     epochs: int):
 
-        parameters = list(ParameterGrid({
-            'units': units,
-            'batch_size': batch_size,
-            'dropout': dropout,
-            'recur_dropout': recur_dropout
-        }))
-        log_path = self.grid_search_log(grid_search_name)
-        if os.path.exists(log_path):
-            print(MESSAGE_GRID_SEARCH_EXISTS.format(gs_name=grid_search_name))
-            gs_df = pd.read_csv(log_path)
-        else:
-            gs_df = pd.DataFrame(columns=GS_DF_COLS)
-            gs_df.to_csv(log_path, index=False)
-        for i, parameters_ in enumerate(parameters):
-            try_clear_output()
-            display_or_print(gs_df)
-            print(parameters_)
-            if len(gs_df.query(
-                f"units=={parameters_['units']} and " +
-                f"batch_size=={parameters_['batch_size']} and " +
-                f"dropout=={parameters_['dropout']} and " +
-                f"recur_dropout=={parameters_['recur_dropout']}"
-            )) > 0:
-                print(MESSAGE_SKIPPING_PARAMS)
-                continue
-            model_args = {
-                'model_name': f"{grid_search_name}_{i}",
-                'units': parameters_['units'],
-                'batch_size': parameters_['batch_size'],
-                'dropout': parameters_['dropout'],
-                'recur_dropout': parameters_['recur_dropout'],
-                'keep_size': keep_size,
-                'val_size': val_size
-            }
-            try:
-                self.add_model(**model_args)
-                if i == 0:
-                    train_idxs = self.model.train_idxs
-                    vals_idxs = self.model.val_idxs
-                else:
-                    self.model.train_idxs = train_idxs
-                    self.model.val_idxs = vals_idxs
-                start_time = time.time()
-                self.model.train(epochs)
-                gs_row = {**model_args, 'Time': time.time() - start_time}
-                model_log_df = pd.read_csv(self.model.log_path())
-                last_epoch_info = model_log_df.iloc[-1].to_dict()
-                gs_row = {**gs_row, **last_epoch_info}
-            except Exception as e:
-                gs_row = {**model_args, 'Exception': e}
-            gs_df = gs_df.append(gs_row, ignore_index=True)
-            gs_df.to_csv(log_path, index=False)
+        attrs = locals()
+        del attrs['self']
+        self.model = BiLSTMCharFeatureRestorerGridSearch(self, **attrs)
 
     # ====================
-    def grid_search_folder(self, grid_search_name):
+    def grid_search_path(self):
 
-        gs_folder = os.path.join(
-            self.root_folder,
-            'grid_searches',
-            grid_search_name
-        )
-        mk_dir_if_does_not_exist(gs_folder)
-        return gs_folder
-
-    # ====================
-    def grid_search_log(self, grid_search_name):
-
-        return os.path.join(
-            self.grid_search_folder(grid_search_name),
-            'log.csv'
-        )
-
-    # ====================
-    def show_grid_search_log(self, grid_search_name):
-
-        display_or_print(pd.read_csv(self.grid_search_log(grid_search_name)))
+        grid_search_path_ = \
+            os.path.join(self.root_folder, GRID_SEARCH_PATH_NAME)
+        mk_dir_if_does_not_exist(grid_search_path_)
+        return grid_search_path_
 
     # === STATIC METHODS ===
 

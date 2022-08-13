@@ -35,13 +35,14 @@ class BiLSTMCharFeatureRestorerModel:
     def __init__(self, parent, **kwargs):
 
         self.parent = parent
-        model_name = kwargs['model_name']
-        model_path = os.path.join(self.parent.models_path(), model_name)
-        if os.path.exists(model_path):
-            raise ValueError(ERROR_MODEL_EXISTS.format(model_name=model_name))
+        self.__dict__.update(kwargs)
+        model_path = self.root_folder()
+        if kwargs['overwrite'] is False and os.path.exists(model_path):
+            raise ValueError(
+                ERROR_MODEL_EXISTS.format(model_name=self.model_name)
+            )
         else:
             mk_dir_if_does_not_exist(model_path)
-        self.__dict__.update(kwargs)
         self.train_val_split()
         self.save()
         self.model = self.new_model()
@@ -55,7 +56,8 @@ class BiLSTMCharFeatureRestorerModel:
             del attrs['model']
         attrs_path = self.attrs_path()
         save_file(attrs, attrs_path)
-        print(MESSAGE_SAVED_MODEL.format(root_folder=self.root_folder()))
+        if self.supress_save_msg is True:
+            print(MESSAGE_SAVED_MODEL.format(root_folder=self.root_folder()))
         self.show_attrs()
 
     # ====================
