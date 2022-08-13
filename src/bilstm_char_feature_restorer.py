@@ -51,6 +51,10 @@ SAVED_NUMPY_ARRAY = """Saved numpy array with shape {shape} to \
 {numpy_asset_name}."""
 SAVED_TOKENIZED_SAMPLES = """Saved {num_samples} tokenized samples to \
 {tokenized_asset_name}."""
+
+MESSAGE_GRID_SEARCH_EXISTS = """\
+There is already a grid search with the name {gs_name}. Attempting to resume \
+the existing grid search..."""
 MESSAGE_GENERATING_RAW_SAMPLES = "Generating raw samples from data provided..."
 MESSAGE_TOKENIZING_INPUTS = "Tokenizing model inputs (X)..."
 MESSAGE_TOKENIZING_OUTPUTS = "Tokenizing model outputs (y)..."
@@ -63,6 +67,9 @@ Loaded BiLSTMCharFeatureRestorer with the below attributes from \
 {root_folder}"""
 MESSAGE_SAVED_INSTANCE = """\
 Saved BiLSTMCharFeatureRestorer with the below attributes to {root_folder}"""
+MESSAGE_SKIPPING_PARAMS = """\
+Skipping this parameter combination as it has already been tested in this \
+grid search..."""
 
 # Warning messages
 WARNING_INPUT_STR_TOO_SHORT = """Warning: length of input string is less \
@@ -768,12 +775,22 @@ class BiLSTMCharFeatureRestorer:
             'dropout': dropout,
             'recur_dropout': recur_dropout
         }))
-        gs_df = pd.DataFrame(columns=GS_DF_COLS)
-        gs_df.to_csv(self.grid_search_log(grid_search_name), index=False)
+        log_path = self.grid_search_log(grid_search_name)
+        if os.path.exists(log_path):
+            print(MESSAGE_GRID_SEARCH_EXISTS.format(gs_name=grid_search_name))
+        else:
+            gs_df = pd.DataFrame(columns=GS_DF_COLS)
+            gs_df.to_csv(log_path, index=False)
         for i, parameters_ in enumerate(parameters):
             try_clear_output()
             display_or_print(gs_df)
             print(parameters_)
+            if len(gs_df[gs_df['units'] == units &
+                         gs_df['batch_size'] == batch_size &
+                         gs_df['dropout'] == dropout &
+                         gs_df['recur_dropout'] == recur_dropout]) > 0:
+                print(MESSAGE_SKIPPING_PARAMS)
+                continue
             model_args = {
                 'model_name': f"{grid_search_name}_{i}",
                 'units': parameters_['units'],
