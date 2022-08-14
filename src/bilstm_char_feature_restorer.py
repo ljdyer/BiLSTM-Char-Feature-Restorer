@@ -470,7 +470,7 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def tokenize(self, tokenizer_name: str, raw_asset_name: str,
-                 tokenized_asset_name: str, char_level: bool):
+                 tokenized_asset_name: str):
         """Open an asset, create and fit a Keras tokenizer, tokenize the
         asset, and save both the tokenizer and the tokenized data"""
 
