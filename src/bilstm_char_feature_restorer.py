@@ -604,7 +604,13 @@ class BiLSTMCharFeatureRestorer:
         X_decoded = X_tokenizer.sequences_to_texts([X])[0].split()
         y_tokenizer = self.get_asset('Y_TOKENIZER')
         y_decoded = self.decode_class_list(y_tokenizer, y)
-        assert len(X_decoded) == len(y_decoded)
+        try:
+            assert len(X_decoded) == len(y_decoded)
+        except:
+            print(X_decoded)
+            print(len(X_decoded))
+            print(y_decoded)
+            print(len(y_decoded))
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(X_decoded, y_decoded)]
         output = ''.join(output_parts)
