@@ -600,6 +600,8 @@ class BiLSTMCharFeatureRestorer:
         """Generate a raw string (text with features) from model input (X)
         and output (y)"""
 
+        assert len(X) == self.seq_length
+        assert len(y) == self.seq_length
         X_tokenizer = self.get_asset('X_TOKENIZER')
         X_decoded = X_tokenizer.sequences_to_texts([X])[0].split()
         y_tokenizer = self.get_asset('Y_TOKENIZER')
