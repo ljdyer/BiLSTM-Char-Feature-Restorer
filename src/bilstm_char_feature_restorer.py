@@ -68,6 +68,8 @@ grid search..."""
 # Warning messages
 WARNING_INPUT_STR_TOO_SHORT = """Warning: length of input string is less \
 than the model sequence length."""
+WARNING_DIFF_LENGTHS = """Warning: Decoded X and y lists have different \
+lengths for sample {i}."""
 
 # Error messages
 ERROR_INPUT_STR_TOO_LONG = """The sequence length for this feature restorer \
@@ -608,7 +610,7 @@ class BiLSTMCharFeatureRestorer:
         X_decoded = X_tokenizer.sequences_to_texts([X])[0].split()
         y_tokenizer = self.get_asset('Y_TOKENIZER')
         y_decoded = self.decode_class_list(y_tokenizer, y)
-        if len(X_decoded) != len(y_decoded)
+        if len(X_decoded) != len(y_decoded):
             print(WARNING_DIFF_LENGTHS.format(i=i))
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(X_decoded, y_decoded)]
