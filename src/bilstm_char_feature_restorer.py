@@ -401,97 +401,57 @@ class BiLSTMCharFeatureRestorer:
         """Given a datapoint (i.e. a document in the data provided), generate a
         lists of X and y values for training."""
 
-        if self.spaces is True:
-            X, y = self.datapoint_to_Xy_spaces_true(datapoint)
+        # TODO: Implement case where one_of_each=False
+        if self.one_of_each is not True:
+            raise ValueError(ERROR_ONE_OF_EACH_FALSE_NOT_IMPLEMENTED)
+        chars_orig = list_gclust(datapoint)
+        chars = []
+        classes = []
+        while len(chars_orig) > 0:
+            this_char = chars_orig.pop(0)
+            if this_char in self.feature_chars:
+                try:
+                    classes[-1].append(this_char)
+                except IndexError:
+                    # If there are feature chars at the start of the doc, just
+                    # ignore them until the first non-feature char
+                    continue
+            else:
+                if self.capitalisation is True and this_char.isupper():
+                    chars.append(this_char.lower())
+                    classes.append(['U'])
+                else:
+                    chars.append(this_char)
+                    classes.append([])
+        if self.capitalisation is True:
+            order = ['U'] + self.feature_chars
         else:
-            X, y = self.datapoint_to_Xy_spaces_false(datapoint)
-        return X, y
-
-    # ====================
-    def datapoint_to_Xy_spaces_true(self, datapoint: str) -> list:
-        """Generate X and y values from a datapoint (document) in the case that
-        self.spaces=True.
-
-        Generate a sample beginning at the start of each word (after each
-        space)."""
-
+            order = self.feature_chars
+        classes = [
+            ''.join([c for c in order if c in class_])
+            for class_ in classes
+        ]
+        assert len(chars) == len(classes)
+        # Sliding windows
         X = []
         y = []
-        words = datapoint.split(' ')
-        substrs = [' '.join(words[i:]) for i in range(len(words))]
-        for substr in substrs:
-            Xy = self.substr_to_Xy(substr)
-            if Xy is not None:
-                X_, y_ = Xy
-                X.append(X_)
-                y.append(y_)
-        return X, y
-
-    # ====================
-    def datapoint_to_Xy_spaces_false(self, datapoint: str) -> list:
-        """Generate X and y values from a datapoint (document) in the case that
-        self.spaces=False.
-
-        Use a sliding window beginning from the first character and shifting
-        self.char_shift characters at each step."""
-
-        X = []
-        y = []
-        start_char = 0
-        char_shift = self.char_shift
-        while start_char < len(datapoint):
-            substr = datapoint[start_char:]
-            Xy = self.substr_to_Xy(substr)
-            if Xy is not None:
-                X_, y_ = Xy
-                X.append(X_)
-                y.append(y_)
-            start_char += char_shift
-        return X, y
-
-    # ====================
-    def substr_to_Xy(self, substr: str) -> tuple:
-        """Generate X and y values from a substring of a datapoint
-        (document)"""
-
-        X = []
-        y = []
-        chars = list_gclust(substr)
-        if len(chars) < 1:
-            return None
-        if chars[0] in self.feature_chars:
-            # Substring can't begin with a feature char
-            return None
-        for _ in range(self.seq_length):
-            this_class = ''
-            feature_chars_encountered = []
-            # Get the next letter
-            try:
-                this_char = chars.pop(0)
-            except IndexError:
-                # Substr not long enough
-                return None
-            # Check for capitalisation
-            if self.capitalisation and this_char.isupper():
-                X.append(this_char.lower())
-                this_class = 'U' + this_class
-            else:
-                X.append(this_char)
-            # Check for other features
-            while chars and chars[0] in self.feature_chars:
-                this_feature_char = chars.pop(0)
-                feature_chars_encountered.append(this_feature_char)
-            if self.one_of_each:
-                this_class = ''.join(
-                        [this_class] +
-                        [f for f in self.feature_chars
-                         if f in feature_chars_encountered]
-                    )
-            else:
-                raise ValueError(ERROR_ONE_OF_EACH_FALSE_NOT_IMPLEMENTED)
-            y.append(this_class)
-        assert len(X) == self.seq_length
-        assert len(y) == self.seq_length
+        if self.spaces is True:
+            new_word_idxs = [0] + \
+                [i + 1 for i, class_ in enumerate(classes) if ' ' in class_]
+            for i in new_word_idxs:
+                if i + self.seq_length < len(chars):
+                    X.append(chars[i:i+self.seq_length])
+                    y.append(classes[i:i+self.seq_length])
+                else:
+                    break
+        if self.spaces is False:
+            i = 0
+            while i + self.seq_length < len(chars):
+                X.append(chars[i:i+self.seq_length])
+                y.append(classes[i:i+self.seq_length])
+                i += self.char_shift
+        assert all([len(x_) == self.seq_length for x_ in X])
+        assert all([len(y_) == self.seq_length for y_ in y])
         return X, y
 
     # ====================
