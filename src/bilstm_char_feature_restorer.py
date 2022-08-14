@@ -529,8 +529,8 @@ class BiLSTMCharFeatureRestorer:
         all_idxs = range(len(X))
         idxs = sample(all_idxs, k)
         outputs = []
-        for idx in idxs:
-            restored = self.Xy_to_output(X[idx], y[idx])
+        for i, idx in enumerate(idxs):
+            restored = self.Xy_to_output(X[idx], y[idx], i)
             outputs.append((f"{idx:,}", restored))
         outputs_df = pd.DataFrame(outputs, columns=['Index', 'Output'])
         prev_colwidth = pd.options.display.max_colwidth
@@ -596,23 +596,20 @@ class BiLSTMCharFeatureRestorer:
     # === PREDICTION & PREVIEW
 
     # ====================
-    def Xy_to_output(self, X: list, y: list) -> str:
+    def Xy_to_output(self, X: list, y: list, i: int = None) -> str:
         """Generate a raw string (text with features) from model input (X)
         and output (y)"""
 
+        if i is None:
+            i = '?'
         assert len(X) == self.seq_length
         assert len(y) == self.seq_length
         X_tokenizer = self.get_asset('X_TOKENIZER')
         X_decoded = X_tokenizer.sequences_to_texts([X])[0].split()
         y_tokenizer = self.get_asset('Y_TOKENIZER')
         y_decoded = self.decode_class_list(y_tokenizer, y)
-        try:
-            assert len(X_decoded) == len(y_decoded)
-        except:
-            print(X_decoded)
-            print(len(X_decoded))
-            print(y_decoded)
-            print(len(y_decoded))
+        if len(X_decoded) != len(y_decoded)
+            print(WARNING_DIFF_LENGTHS.format(i=i))
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(X_decoded, y_decoded)]
         output = ''.join(output_parts)
