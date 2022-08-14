@@ -140,11 +140,17 @@ class BiLSTMCharFeatureRestorerModel:
                         num_X_categories
                     )
                 ))
+        if num_y_categories == 2:
+            activation = 'sigmoid'
+            loss = 'binary_crossentropy'
+        else:
+            activation = 'softmax'
+            loss = 'categorical_crossentropy'
         model.add(TimeDistributed(Dense(
-            num_y_categories, activation='softmax'
+            num_y_categories, activation=activation
         )))
         model.compile(
-            loss='categorical_crossentropy',
+            loss=loss,
             optimizer='adam',
             metrics=['accuracy']
         )

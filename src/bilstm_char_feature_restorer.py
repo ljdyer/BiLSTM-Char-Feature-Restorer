@@ -83,6 +83,9 @@ ERROR_ONE_OF_EACH_FALSE_NOT_IMPLEMENTED = """Not implemented yet when \
 one_of_each=False."""
 ERROR_CHAR_SHIFT_UNSPECIFIED = """\
 char_shift must be specified when spaces=False"""
+ERROR_MODEL_EXISTS = """\
+There is already a BiLSTM Char Feature Restorer at this path. \
+Either choose a new path, or load the existing BiLSTM Char Feature Restorer."""
 
 CHUNKER_NUM_PREFIX_WORDS = 5
 CHUNKER_NUM_PREFIX_CHARS = 10
@@ -163,6 +166,8 @@ class BiLSTMCharFeatureRestorer:
 
         """
 
+        if os.path.exists(root_folder):
+            raise ValueError(ERROR_MODEL_EXISTS)
         self.root_folder = root_folder
         mk_dir_if_does_not_exist(self.root_folder)
         self.capitalisation = capitalisation
@@ -459,23 +464,23 @@ class BiLSTMCharFeatureRestorer:
         """Tokenize inputs (X)"""
 
         print(MESSAGE_TOKENIZING_INPUTS)
-        self.tokenize('X_TOKENIZER', 'X_RAW', 'X_TOKENIZED')
+        self.tokenize('X_TOKENIZER', 'X_RAW', 'X_TOKENIZED', oov_token='OOV')
 
     # ====================
     def tokenize_outputs(self):
         """Tokenize outputs (y)"""
 
         print(MESSAGE_TOKENIZING_OUTPUTS)
-        self.tokenize('Y_TOKENIZER', 'Y_RAW', 'Y_TOKENIZED')
+        self.tokenize('Y_TOKENIZER', 'Y_RAW', 'Y_TOKENIZED', oov_token=None)
 
     # ====================
     def tokenize(self, tokenizer_name: str, raw_asset_name: str,
-                 tokenized_asset_name: str):
+                 tokenized_asset_name: str, oov_token: str):
         """Open an asset, create and fit a Keras tokenizer, tokenize the
         asset, and save both the tokenizer and the tokenized data"""
 
         data = self.get_asset(raw_asset_name)
-        tokenizer = Tokenizer(oov_token='OOV', filters='')
+        tokenizer = Tokenizer(oov_token=oov_token, filters='')
         tokenizer.fit_on_texts(data)
         tokenized = tokenizer.texts_to_sequences(data)
         self.save_asset(tokenized, tokenized_asset_name)
@@ -615,7 +620,7 @@ class BiLSTMCharFeatureRestorer:
 
         tokenizers = str_or_list_to_list(tokenizers)
         tokenizers = [self.get_asset(t) for t in tokenizers]
-        num_categories = tuple([len(t.word_index) + 1 for t in tokenizers])
+        num_categories = tuple([len(t.word_index) for t in tokenizers])
         return only_or_all(num_categories)
 
     # ====================
