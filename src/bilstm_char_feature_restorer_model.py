@@ -250,12 +250,3 @@ class BiLSTMCharFeatureRestorerModel:
     def get_log_df(self):
 
         return pd.read_csv(self.log_path())
-
-    # ====================
-    def show_max(self, col: str = 'val_accuracy'):
-
-        log_df = self.get_log_df()
-        col_vals = log_df[col].to_list()
-        max_val = max(col_vals)
-        max_row = log_df[log_df[col] == max_val]
-        display_or_print(max_row)
