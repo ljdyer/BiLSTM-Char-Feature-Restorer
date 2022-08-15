@@ -109,6 +109,7 @@ class BiLSTMCharFeatureRestorerGridSearch:
         )
         self.show_attrs()
         self.run_grid_search()
+        return self
 
     # ====================
     def set_param_combos(self):
