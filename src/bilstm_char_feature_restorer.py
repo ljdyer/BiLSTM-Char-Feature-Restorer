@@ -591,7 +591,7 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def encode_tokenized_str(self, tokenized: str):
 
-        num_X_categories = self.get_num_categories('X_TOKENIZER')
+        num_X_categories = self.get_num_categories('X_TOKENIZER') + 1
         encoded = to_categorical(tokenized, num_X_categories)
         return encoded
 

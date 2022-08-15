@@ -137,7 +137,7 @@ class BiLSTMCharFeatureRestorerModel:
                     ),
                     input_shape=(
                         self.parent.seq_length,
-                        num_X_categories
+                        num_X_categories + 1
                     )
                 ))
         if num_y_categories == 2:
@@ -146,6 +146,7 @@ class BiLSTMCharFeatureRestorerModel:
         else:
             activation = 'softmax'
             loss = 'categorical_crossentropy'
+        print(f'activation: {activation}; loss: {loss};')
         model.add(TimeDistributed(Dense(
             num_y_categories, activation=activation
         )))
