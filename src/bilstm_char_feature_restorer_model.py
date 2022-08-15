@@ -234,7 +234,7 @@ class BiLSTMCharFeatureRestorerModel:
                 )
                 y_encoded = to_categorical(
                     y[idxs[(i*batch_size):((i+1)*batch_size)]],
-                    num_y_categories
+                    num_y_categories + 1
                 )
                 yield (X_encoded, y_encoded)
 
