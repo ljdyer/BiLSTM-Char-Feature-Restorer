@@ -148,7 +148,7 @@ class BiLSTMCharFeatureRestorerModel:
             loss = 'categorical_crossentropy'
         print(f'activation: {activation}; loss: {loss};')
         model.add(TimeDistributed(Dense(
-            num_y_categories, activation=activation
+            num_y_categories + 1, activation=activation
         )))
         model.compile(
             loss=loss,
@@ -230,7 +230,7 @@ class BiLSTMCharFeatureRestorerModel:
             for i in range(num_iters):
                 X_encoded = to_categorical(
                     X[idxs[(i*batch_size):((i+1)*batch_size)]],
-                    num_X_categories
+                    num_X_categories + 1
                 )
                 y_encoded = to_categorical(
                     y[idxs[(i*batch_size):((i+1)*batch_size)]],
