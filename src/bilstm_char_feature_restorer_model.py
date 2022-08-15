@@ -141,16 +141,14 @@ class BiLSTMCharFeatureRestorerModel:
                     )
                 ))
         if num_y_categories == 2:
-            dense_units = 1
             activation = 'sigmoid'
             loss = 'binary_crossentropy'
         else:
-            dense_units = num_y_categories
             activation = 'softmax'
             loss = 'categorical_crossentropy'
-        print(f'dense_units: {dense_units}; activation: {activation}; loss: {loss};')
+        print(f'activation: {activation}; loss: {loss};')
         model.add(TimeDistributed(Dense(
-            dense_units, activation=activation
+            num_y_categories + 1, activation=activation
         )))
         model.compile(
             loss=loss,
