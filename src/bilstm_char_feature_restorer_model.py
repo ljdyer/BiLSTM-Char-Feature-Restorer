@@ -148,7 +148,7 @@ class BiLSTMCharFeatureRestorerModel:
             dense_units = num_y_categories
             activation = 'softmax'
             loss = 'categorical_crossentropy'
-        print(f'activation: {activation}; loss: {loss};')
+        print(f'dense_units: {dense_units}; activation: {activation}; loss: {loss};')
         model.add(TimeDistributed(Dense(
             dense_units, activation=activation
         )))
