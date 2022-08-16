@@ -66,6 +66,8 @@ Skipping this parameter combination as it has already been tested in this \
 grid search..."""
 
 # Warning messages
+WARNING_CLASS_NOT_IN_TOK_DICT = """Warning: The class {class_} is not in
+the tokenizer dictionary."""
 WARNING_INPUT_STR_TOO_SHORT = """Warning: length of input string is less \
 than the model sequence length."""
 WARNING_DIFF_LENGTHS = """Warning: Decoded X and y lists have different \
@@ -620,6 +622,14 @@ class BiLSTMCharFeatureRestorer:
         return output
 
     # ====================
+    def decode_class_list(self, tokenizer, encoded: list) -> list:
+
+        index_word = json.loads(tokenizer.get_config()['index_word'])
+        # TODO: Catch and print warning if not in index_word
+        decoded = [self.decode_class(index_word, x) for x in encoded]
+        return decoded
+
+    # ====================
     def get_num_categories(self, tokenizers: Str_or_List) -> Int_or_Tuple:
         """Get the number of categories in one or more tokenizers.
 
@@ -761,13 +771,14 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     @staticmethod
-    def decode_class_list(tokenizer, encoded: list) -> list:
+    def decode_class(index_word: dict, class_):
 
-        index_word = json.loads(tokenizer.get_config()['index_word'])
-        # TODO: Catch and print warning if not in index_word
-        decoded = [index_word[str(x)] if str(x) in index_word else ''
-                   for x in encoded]
-        return decoded
+        class_as_str = str(class_)
+        if class_as_str in index_word:
+            return index_word[class_as_str]
+        else:
+            print(WARNING_CLASS_NOT_IN_TOK_DICT.format(class_=class_as_str))
+            return ''
 
     # ====================
     @staticmethod
