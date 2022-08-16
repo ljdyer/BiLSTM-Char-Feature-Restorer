@@ -765,8 +765,8 @@ class BiLSTMCharFeatureRestorer:
 
         index_word = json.loads(tokenizer.get_config()['index_word'])
         # TODO: Catch and print warning if not in index_word
-        decoded = [lambda x: index_word[str(x)] if str(x) in index_word else ''
-                    for x in encoded]
+        decoded = [index_word[str(x)] if str(x) in index_word else ''
+                   for x in encoded]
         return decoded
 
     # ====================
