@@ -8,8 +8,9 @@ import numpy as np
 import pandas as pd
 import psutil
 import tensorflow
+from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.utils import to_categorical, pad_sequences
+from tensorflow.keras.utils import to_categorical
 
 from bilstm_char_feature_restorer_grid_search import \
     BiLSTMCharFeatureRestorerGridSearch
