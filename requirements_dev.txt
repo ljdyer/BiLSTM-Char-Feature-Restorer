@@ -1,0 +1,4 @@
+pytest
+mypy
+flake8
+git+https://github.com/ljdyer/readme-docstrings.git

@@ -1,6 +1,6 @@
 # BiLSTM-Char-Feature-Restorer
 
-A Python class to enable convenient training of BiLSTM character-level models for restoration of features such as spaces, punctuation, and capitalisation to unsegmented streams of input characters.
+A Python library for training character-level BiLSTM models for restoration of features such as spaces, punctuation, and capitalization to unformatted texts.
 
 E.g.
 `thisisasentence -> This is a sentence.`
