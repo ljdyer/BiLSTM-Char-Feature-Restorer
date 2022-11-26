@@ -1,12 +1,13 @@
 from setuptools import setup
 
 REQUIREMENTS = [
-    # 'nltk',
-    # 'pandas',
-    # 'tqdm',
-    # 'psutil',
-    # 'sklearn',
-    # 'fre @ git+https://github.com/ljdyer/feature-restoration-evaluator.git'
+    'tensorflow',
+    'keras',
+    'tqdm',
+    'sklearn',
+    'uniseg',
+    'pandas',
+    'psutil'
 ]
 
 setup(
