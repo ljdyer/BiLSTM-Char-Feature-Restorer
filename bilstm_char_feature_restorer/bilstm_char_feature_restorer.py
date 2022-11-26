@@ -8,19 +8,19 @@ import numpy as np
 import pandas as pd
 import psutil
 import tensorflow
-from helper.misc import (Int_or_Tuple, Str_or_List, Str_or_List_or_Series,
-                         display_dict, display_or_print, get_tqdm, len_gclust,
-                         list_gclust, load_file, mk_dir_if_does_not_exist,
-                         only_or_all, save_file, show_ram_used,
-                         str_or_list_or_series_to_list, str_or_list_to_list)
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import to_categorical
 
-from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search \
-    import BiLSTMCharFeatureRestorerGridSearch
+from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search import \
+    BiLSTMCharFeatureRestorerGridSearch
 from bilstm_char_feature_restorer.bilstm_char_feature_restorer_model import \
     BiLSTMCharFeatureRestorerModel
+from bilstm_char_feature_restorer.helper import (
+    Int_or_Tuple, Str_or_List, Str_or_List_or_Series, display_dict,
+    display_or_print, get_tqdm, len_gclust, list_gclust, load_file,
+    mk_dir_if_does_not_exist, only_or_all, save_file, show_ram_used,
+    str_or_list_or_series_to_list, str_or_list_to_list)
 
 CLASS_ATTRS_FNAME = 'CLASS_ATTRS.pickle'
 MODELS_PATH_NAME = 'models'

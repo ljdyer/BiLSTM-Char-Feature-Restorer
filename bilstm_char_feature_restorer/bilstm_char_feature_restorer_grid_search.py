@@ -1,11 +1,13 @@
 import os
-
 import time
+
 import pandas as pd
 from sklearn.model_selection import ParameterGrid, train_test_split
 
-from helper.misc import (try_clear_output, display_or_print, load_file,
-                         mk_dir_if_does_not_exist, save_file, display_dict)
+from bilstm_char_feature_restorer.helper import (display_dict,
+                                                 display_or_print, load_file,
+                                                 mk_dir_if_does_not_exist,
+                                                 save_file, try_clear_output)
 
 GRID_SEARCH_ATTRS_FNAME = 'GRID_SEARCH_ATTRS.pickle'
 

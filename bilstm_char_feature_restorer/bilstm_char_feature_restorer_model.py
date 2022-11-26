@@ -9,8 +9,10 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
 from tensorflow.keras.utils import to_categorical
 
-from helper.misc import (display_dict, load_file, mk_dir_if_does_not_exist,
-                         save_file, display_or_print)
+from bilstm_char_feature_restorer.helper import (display_dict,
+                                                 display_or_print, load_file,
+                                                 mk_dir_if_does_not_exist,
+                                                 save_file)
 
 MODEL_ATTRS_FNAME = 'MODEL_ATTRS.pickle'
 MODEL_LOG_FNAME = 'log.csv'
