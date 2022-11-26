@@ -12,10 +12,10 @@ REQUIREMENTS = [
 
 setup(
     name='bilstm_char_feature_restorer',
-    version='0.1',
+    version='0.2',
     description="""\
-Train character-level BiLSTM models for restoration of features such as spaces, \
-punctuation, and capitalization to unformatted texts\
+Train character-level BiLSTM models for restoration of features such as \
+spaces, punctuation, and capitalization to unformatted texts\
 """,
     author='Laurence Dyer',
     author_email='ljdyer@gmail.com',
