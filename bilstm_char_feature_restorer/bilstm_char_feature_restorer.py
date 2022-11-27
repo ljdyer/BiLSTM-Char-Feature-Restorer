@@ -840,7 +840,6 @@ class BiLSTMCharFeatureRestorer:
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(input_str, y_decoded)]
         output = ''.join(output_parts)
-        print(output)
         return output
 
     # ====================
@@ -891,17 +890,26 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def predict_doc_spaces_true(self, input_str: str) -> str:
+        """Get the predicted output for a document (any length) when
+        spaces=True
+
+        Args:
+          raw_str (str):
+            The document to restore features to.
+
+        Returns:
+          str:
+            The document with features restored.
+        """
 
         all_output: List[str] = []
         prefix = ''
-        print(input_str)
         while input_str:
             restore_until = self.seq_length - len_gclust(prefix)
             text_to_restore = \
                 prefix + ''.join(list_gclust(input_str)[:restore_until])
             input_str = \
                 ''.join(list_gclust(input_str)[restore_until:])
-            print(text_to_restore)
             chunk_restored: str = self.predict(text_to_restore)
             chunk_restored_split: List[str] = chunk_restored.split(' ')
             prefix = self.preprocess_raw_str(
@@ -917,6 +925,17 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def predict_doc_spaces_false(self, input_str: str) -> str:
+        """Get the predicted output for a document (any length) when
+        spaces=False
+
+        Args:
+          raw_str (str):
+            The document to restore features to.
+
+        Returns:
+          str:
+            The document with features restored.
+        """
 
         all_output: List[str] = []
         prefix = ''
@@ -945,6 +964,35 @@ class BiLSTMCharFeatureRestorer:
                         keep_size: float,
                         val_size: float,
                         epochs: int):
+        """Add a grid search to the class instance.
+
+        Args:
+          grid_search_name (str):
+            A name for the grid search (e.g. 'grid_search_1')
+          units (Union[int, list]):
+            The number of BiLSTM units. Either a single number (e.g. 256)
+            or a list of numbers to generate parameter combinations
+            (e.g. [64, 128, 256]).
+          batch_size (Union[int, list]):
+            The batch size. Either a single number (e.g. 2048)
+            or a list of numbers to generate parameter combinations
+            (e.g. [2048, 4096, 8192]).
+          dropout (Union[float, list]):
+            The forward dropout rate. Either a single number (e.g. 0.1)
+            or a list of numbers to generate parameter combinations
+            (e.g. [0, 0.1, 0.2]).
+          recur_dropout (Union[float, list]):
+            The recurrent (backward) dropout rate. Either a single number
+            (e.g. 0.1) or a list of numbers to generate parameter
+            combinations (e.g. [0, 0.1, 0.2]).
+          keep_size (float):
+            The proportion of the loaded data to use in grid searches (e.g. )
+          val_size (float):
+            The proportion of data to use for validation.
+            E.g. set val_size=0.2 for an 80/20 train/val split.
+          epochs (int):
+            How many epochs to train for with each parameter combination.
+        """
 
         attrs = locals()
         del attrs['self']
@@ -952,12 +1000,26 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def load_grid_search(self, grid_search_name: str):
+        """Load a previously created grid search.
+
+        Args:
+          grid_search_name (str):
+            The grid search name that was specified when the grid search
+            was created.
+        """
 
         self.grid_search = \
             BiLSTMCharFeatureRestorerGridSearch.load(self, grid_search_name)
 
     # ====================
-    def grid_search_path(self):
+    def grid_search_path(self) -> str:
+        """Return the path to the folder where the grid search assets for
+        the instance are saved.
+
+        Returns:
+          str:
+            The path to the folder where the grid search assets are saved
+        """
 
         grid_search_path_ = \
             os.path.join(self.root_folder, GRID_SEARCH_PATH_NAME)
@@ -968,7 +1030,19 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     @staticmethod
-    def decode_class(index_word: dict, class_):
+    def decode_class(index_word: dict, class_: str) -> str:
+        """Decode an encoded class
+
+        Args:
+          index_word (dict):
+            The index_word dictionary of a Tokenizer object
+          class_ (str):
+            A class to decode (e.g. '8')
+
+        Returns:
+          str:
+            The decoded class (e.g. 'u. ')
+        """
 
         class_as_str = str(class_)
         if class_as_str in index_word:
@@ -980,6 +1054,18 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     @staticmethod
     def char_and_class_to_output_str(X_: str, y_: str) -> str:
+        """Convert an input character and output class to a single string
+        for the output document.
+
+        Args:
+          X_ (str):
+            The input character (e.g. 'm')
+          y_ (str):
+            The output class (e.g. 'U.')
+
+        Returns:
+          str: The output string (e.g. 'M.')
+        """
 
         if len(y_) > 0 and y_[0] == 'u':
             X_ = X_.upper()
