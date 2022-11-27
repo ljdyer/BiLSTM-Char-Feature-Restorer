@@ -648,8 +648,7 @@ class BiLSTMCharFeatureRestorer:
         equal to the model sequence length"""
 
         input_str = self.preprocess_raw_str(raw_str)
-        input_str = list_gclust(input_str)
-        X_encoded = self.input_str_to_model_input(raw_str)
+        X_encoded = self.input_str_to_model_input(input_str)
         predicted = self.model.model.predict(X_encoded)
         y = np.argmax(predicted, axis=2)[0]
         y_tokenizer = self.get_asset('Y_TOKENIZER')
