@@ -6,8 +6,8 @@ import pandas as pd
 from keras.layers import LSTM, Bidirectional, Dense, TimeDistributed
 from keras.models import Sequential
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint
-from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.callbacks import CSVLogger, ModelCheckpoint   # type: ignore  # noqa: E501
+from tensorflow.keras.utils import to_categorical   # type: ignore
 
 from bilstm_char_feature_restorer.helper import (display_dict,
                                                  display_or_print, load_file,

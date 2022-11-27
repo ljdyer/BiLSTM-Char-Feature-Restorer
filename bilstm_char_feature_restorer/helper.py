@@ -10,14 +10,9 @@ from tqdm.notebook import tqdm as notebook_tqdm
 from uniseg.graphemecluster import grapheme_clusters
 
 try:
-    from IPython.display import clear_output
-except:
+    from IPython.display import clear_output    # type: ignore
+except:  # noqa: E722
     pass
-
-Str_or_List = Union[str, list]
-Int_or_Tuple = Union[int, tuple]
-Str_or_List_or_Series = Union[str, list, pd.Series]
-List_or_Tuple = Union[list, tuple]
 
 MESSAGE_RAM_IN_USE = "RAM currently in use: {ram_in_use}%"
 
@@ -31,7 +26,7 @@ def try_clear_output():
 
     try:
         clear_output(wait=True)
-    except:
+    except:  # noqa: E722
         pass
 
 
@@ -57,8 +52,9 @@ def list_gclust(str_: str) -> list:
 
 
 # ====================
-def only_or_all(input_: List_or_Tuple) -> Any:
-    """If the list or tuple contains only a single element, return that element.
+def only_or_all(input_: Union[list, tuple]) -> Any:
+    """If the list or tuple contains only a single element, return that
+    element.
 
     Otherwise return the original list or tuple."""
 
@@ -82,8 +78,7 @@ def str_or_list_or_series_to_list(input_: Union[str, list, pd.Series]) -> list:
 
 
 # ====================
-def str_or_list_to_list(
-     input_: Str_or_List) -> list:
+def str_or_list_to_list(input_: Union[str, list]) -> list:
 
     if isinstance(input_, str):
         return [input_]
@@ -119,7 +114,7 @@ def is_running_from_ipython():
 
     try:
         # Notebooks have IPython module installed
-        from IPython import get_ipython
+        from IPython import get_ipython  # type: ignore   # noqa: F401
         return True
     except ModuleNotFoundError:
         return False
@@ -129,7 +124,7 @@ def is_running_from_ipython():
 def display_or_print(obj: Any):
 
     if is_running_from_ipython():
-        display(obj)
+        display(obj)    # type: ignore   # noqa: F821
     else:
         print(obj)
 

@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from random import sample
-from typing import Any, List, Union, Tuple, Optional
+from typing import Any, List, Optional, Tuple, Union
 
 import absl.logging
 import numpy as np
@@ -11,23 +11,20 @@ import psutil
 import tensorflow
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.utils import to_categorical   # type: ignore
 
-from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search import \
-    BiLSTMCharFeatureRestorerGridSearch
-from bilstm_char_feature_restorer.bilstm_char_feature_restorer_model import \
-    BiLSTMCharFeatureRestorerModel
-from bilstm_char_feature_restorer.helper import (Int_or_Tuple, Str_or_List,
-                                                 Str_or_List_or_Series,
-                                                 display_dict,
+from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search \
+    import BiLSTMCharFeatureRestorerGridSearch
+from bilstm_char_feature_restorer.bilstm_char_feature_restorer_model \
+    import BiLSTMCharFeatureRestorerModel
+from bilstm_char_feature_restorer.helper import (display_dict,
                                                  display_or_print, get_tqdm,
                                                  len_gclust, list_gclust,
                                                  load_file,
                                                  mk_dir_if_does_not_exist,
                                                  only_or_all, save_file,
                                                  show_ram_used,
-                                                 str_or_list_or_series_to_list,
-                                                 str_or_list_to_list)
+                                                 str_or_list_or_series_to_list)
 
 MODELS_PATH_NAME = 'models'
 GRID_SEARCH_PATH_NAME = 'grid_search'
@@ -309,7 +306,7 @@ class BiLSTMCharFeatureRestorer:
         """Load a previously created model.
 
         Args:
-          model_name (str): 
+          model_name (str):
             The model name that was assigned when the model was created.
         """
 
@@ -832,7 +829,7 @@ class BiLSTMCharFeatureRestorer:
           str:
             The predicted output string (e.g. 'This is a sentence.', if
             the model has learnt well!)
-        """        
+        """
 
         input_str = self.preprocess_raw_str(raw_str)
         X_encoded = self.input_str_to_model_input(input_str)
