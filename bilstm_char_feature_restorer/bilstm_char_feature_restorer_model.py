@@ -127,8 +127,8 @@ class BiLSTMCharFeatureRestorerModel:
     # ====================
     def new_model(self):
 
-        num_X_categories, num_y_categories = \
-            self.parent.get_num_categories(['X_TOKENIZER', 'Y_TOKENIZER'])
+        num_X_categories = self.parent.get_num_categories('X_TOKENIZER')
+        num_y_categories = self.parent.get_num_categories('Y_TOKENIZER')
         model = Sequential()
         model.add(Bidirectional(
                     LSTM(
@@ -227,8 +227,8 @@ class BiLSTMCharFeatureRestorerModel:
             idxs = self.train_or_val_idxs(train_or_val)
             shuffle(idxs)
             num_iters = len(idxs) // batch_size
-            num_X_categories, num_y_categories = \
-                self.parent.get_num_categories(['X_TOKENIZER', 'Y_TOKENIZER'])
+            num_X_categories = self.parent.get_num_categories('X_TOKENIZER')
+            num_y_categories = self.parent.get_num_categories('Y_TOKENIZER')
             for i in range(num_iters):
                 X_encoded = to_categorical(
                     X[idxs[(i*batch_size):((i+1)*batch_size)]],
