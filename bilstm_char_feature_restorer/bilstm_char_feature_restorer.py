@@ -4,6 +4,7 @@ import os
 from random import sample
 from typing import Any, List, Union
 
+import absl.logging
 import numpy as np
 import pandas as pd
 import psutil
@@ -12,8 +13,8 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import to_categorical
 
-from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search \
-    import BiLSTMCharFeatureRestorerGridSearch
+from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search import \
+    BiLSTMCharFeatureRestorerGridSearch
 from bilstm_char_feature_restorer.bilstm_char_feature_restorer_model import \
     BiLSTMCharFeatureRestorerModel
 from bilstm_char_feature_restorer.helper import (Int_or_Tuple, Str_or_List,
@@ -107,6 +108,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
 logging.getLogger('tensorflow').setLevel(logging.FATAL)
 tensorflow.get_logger().setLevel('ERROR')
 tensorflow.compat.v1.logging.set_verbosity(tensorflow.compat.v1.logging.ERROR)
+absl.logging.set_verbosity(absl.logging.ERROR)
 
 
 # ====================
@@ -130,7 +132,7 @@ class BiLSTMCharFeatureRestorer:
             The path to a folder to which to save model assets. The folder
             should not exist yet. It will be created.
           capitalisation (bool):
-            Whether or not models trained on the instance will attempt to 
+            Whether or not models trained on the instance will attempt to
             restore capitalisation (e.g. convert 'new york' to 'New York').
           spaces (bool):
             Whether or not models trained on the instance will attempt to
@@ -146,7 +148,7 @@ class BiLSTMCharFeatureRestorer:
           seq_length (int):
             The length in characters of model input sequences used for
             preprocessing, training, and prediction.
-          one_of_each (bool, optional): 
+          one_of_each (bool, optional):
             If set to True, the model will only restore a maximum of one
             of each feature per character. E.g. '...' will never appear in
             output texts.
@@ -154,7 +156,7 @@ class BiLSTMCharFeatureRestorer:
             each feature if it deems that more than one of a feature is
             appropriate. (Not implemented yet at the time of writing.)
             Defaults to True.
-          char_shift (int, optional): 
+          char_shift (int, optional):
             Only required if spaces=False. The step size in characters for
             the sliding window when generating input data. Smaller values
             of char_shift generate larger numbers of training examples.
