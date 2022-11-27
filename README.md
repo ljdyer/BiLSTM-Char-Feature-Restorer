@@ -56,7 +56,7 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def __init__(self,
                  root_folder: str,
-                 capitalisation: bool,
+                 capitalization: bool,
                  spaces: bool,
                  other_features: list,
                  seq_length: int,
@@ -73,8 +73,8 @@ class BiLSTMCharFeatureRestorer:
                                     This folder will be created if it does not
                                     already exist.
 
-        capitalisation: bool        Whether or not models trained on the
-                                    instance will restore capitalisation.
+        capitalization: bool        Whether or not models trained on the
+                                    instance will restore capitalization.
 
         spaces: bool                Whether or not models trained on the
                                     instance will restore spaces.
@@ -122,7 +122,7 @@ Example usage:
 ```python
 bcfr = BiLSTMCharFeatureRestorer(
     root_folder=MODEL_FOLDER,
-    capitalisation=False,
+    capitalization=False,
     spaces=False,
     other_features=list('。、？'),
     seq_length=200,

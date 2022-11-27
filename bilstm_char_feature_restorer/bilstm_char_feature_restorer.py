@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from random import sample
-from typing import Any, List, Union
+from typing import Any, List, Union, Tuple, Optional
 
 import absl.logging
 import numpy as np
@@ -119,21 +119,21 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def __init__(self,
                  root_folder: str,
-                 capitalisation: bool,
+                 capitalization: bool,
                  spaces: bool,
                  other_features: list,
                  seq_length: int,
                  one_of_each: bool = True,
-                 char_shift: int = None):
+                 char_shift: Optional[int] = None):
         """Initialize and train an instance of the class.
 
         Args:
           root_folder (str):
             The path to a folder to which to save model assets. The folder
             should not exist yet. It will be created.
-          capitalisation (bool):
+          capitalization (bool):
             Whether or not models trained on the instance will attempt to
-            restore capitalisation (e.g. convert 'new york' to 'New York').
+            restore capitalization (e.g. convert 'new york' to 'New York').
           spaces (bool):
             Whether or not models trained on the instance will attempt to
             restore spaces. (e.g. convert 'goodmorning' to 'good morning')
@@ -156,7 +156,7 @@ class BiLSTMCharFeatureRestorer:
             each feature if it deems that more than one of a feature is
             appropriate. (Not implemented yet at the time of writing.)
             Defaults to True.
-          char_shift (int, optional):
+          char_shift (Optional[int], optional):
             Only required if spaces=False. The step size in characters for
             the sliding window when generating input data. Smaller values
             of char_shift generate larger numbers of training examples.
@@ -173,7 +173,7 @@ class BiLSTMCharFeatureRestorer:
             raise ValueError(ERROR_MODEL_EXISTS)
         self.root_folder = root_folder
         mk_dir_if_does_not_exist(self.root_folder)
-        self.capitalisation = capitalisation
+        self.capitalization = capitalization
         self.spaces = spaces
         self.other_features = other_features
         self.seq_length = seq_length
@@ -240,13 +240,21 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def list_models(self):
+        """Print a list of the available models for the current class instance.
+        """
 
         models_path_ = self.models_path()
         for fn in sorted(os.listdir(models_path_)):
             print(fn)
 
     # ====================
-    def models_path(self):
+    def models_path(self) -> str:
+        """Return the path to the folder where model assets are stored.
+
+        Returns:
+          str:
+            The path to the folder where model assets are stored.
+        """
 
         models_path_ = os.path.join(self.root_folder, MODELS_PATH_NAME)
         mk_dir_if_does_not_exist(models_path_)
@@ -263,29 +271,33 @@ class BiLSTMCharFeatureRestorer:
                   val_size: float,
                   overwrite: bool = False,
                   supress_save_msg: bool = False):
-        """Create a new BiLSTM model.
+        """Create a new model.
 
         All models assets are saved in the 'models' subfolder of the
         instance root folder, and the 'model' attribute of the current
         instance is set to a BiLSTMCharFeatureRestorerModel object
         representing the currently loaded model.
 
-        Required arguments:
-        -------------------
-        model_name: str             A name for the new model.
-        units: int                  The number of BiLSTM units.
-        batch_size: int             The batch size
-        dropout: float              The forward dropout rate.
-        recur_dropout: float        The recurrent (backward) dropout rate.
-        keep_size: float            The proportion of the loaded data to
-                                    use in model training.
-                                    This will usually be 1.0, but values
-                                    such as 0.1 maybe used for grid
-                                    searches, etc.
-        val_size: float             The proportion of data to use for
-                                    validation when training the model.
-                                    E.g. set val_size=0.2 for an 80/20
-                                    train/val split.
+        Args:
+          model_name (str):
+            A name for the new model
+          units (int):
+            The number of BiLSTM units
+          batch_size (int):
+            The batch size.
+          dropout (float):
+            The forward dropout rate.
+          recur_dropout (float):
+            The recurrent (backward) dropout rate.
+          keep_size (float):
+            The proportion of the loaded data to use in model training.
+            This will usually be 1.0, but values such as 0.1 maybe used
+            for grid searches, etc.
+          val_size (float):
+            The proportion of data to use for validation when training
+            the model. E.g. set val_size=0.2 for an 80/20 train/val split.
+          overwrite (bool, optional): _description_. Defaults to False.
+          supress_save_msg (bool, optional): _description_. Defaults to False.
         """
 
         attrs = locals()
@@ -294,6 +306,12 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def load_model(self, model_name: str):
+        """Load a previously created model.
+
+        Args:
+          model_name (str): 
+            The model name that was assigned when the model was created.
+        """
 
         self.model = BiLSTMCharFeatureRestorerModel.load(self, model_name)
 
@@ -301,16 +319,33 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def get_asset(self, asset_name: str, mmap: bool = False) -> Any:
-        """Get an asset based on the asset name
+        """Get an asset from the class instance's saved assets
 
-        Use numpy memmap if mmap=True"""
+        Args:
+          asset_name (str):
+            The name of the asset to get.
+          mmap (bool, optional):
+            Whether to use numpy memmap. Defaults to False.
+
+        Returns:
+          Any:
+            The loaded asset.
+        """
 
         asset_path = self.asset_path(asset_name)
         return load_file(asset_path, mmap=mmap)
 
     # ====================
     def asset_path(self, asset_name: str) -> str:
-        """Get the path to an asset"""
+        """Get the path to an asset.
+
+        Args:
+          asset_name (str):
+            The name of the asset (e.g. 'X_TOKENIZED')
+
+        Returns:
+            str: The path to the asset
+        """
 
         fname = ASSETS[asset_name]
         return self.get_file_path(fname)
@@ -318,13 +353,29 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def get_file_path(self, fname: str) -> str:
         """Get a file path from a file name by appending the root folder of
-        the current instance."""
+        the current instance.
+
+        Args:
+          fname (str):
+            The name of the file where the asset is stored.
+
+        Returns:
+          str:
+            The path to the asset file.
+        """
 
         return os.path.join(self.root_folder, fname)
 
     # ====================
     def save_asset(self, data: Any, asset_name: str):
-        """Save data to the asset file for the named asset"""
+        """Save data to the asset file for the named asset.
+
+        Args:
+          data (Any):
+            The data to save
+          asset_name (str):
+            The name of the asset.
+        """
 
         asset_path = self.asset_path(asset_name)
         save_file(data, asset_path)
@@ -350,18 +401,18 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def load_data(self, data: List[str]):
-        """Convert provided data into form required for model training.
+        """Convert the data provided into the form required for model
+        training.
 
         Preprocess gold standard strings provided to raw inputs based
         on the features specified for restoration, then tokenize and
         convert to numpy format. Save the various assets in the model
         root folder.
 
-        Required arguments:
-        -------------------
-        data: List[str]             A list of gold standard sentences
-                                    (i.e. fully formatted sentences like
-                                    "This is a sentence.")
+        Args:
+          data (List[str]):
+            A list of gold standard sentences (i.e. fully formatted
+            sentences like "This is a sentence.")
         """
 
         self.generate_raw(data)
@@ -385,11 +436,17 @@ class BiLSTMCharFeatureRestorer:
         """Generate lists of raw X and y values to use as samples from
         datapoints (documents) in the data provided.
 
-        Save in 'X_RAW' and 'Y_RAW' assets"""
+        Save in 'X_RAW' and 'Y_RAW' assets.
+
+        Args:
+          data (List[str]):
+            A list of gold standard sentences (i.e. fully formatted
+            sentences like "This is a sentence.")
+        """
 
         print(MESSAGE_GENERATING_RAW_SAMPLES)
-        X = []
-        y = []
+        X: List[list] = []
+        y: List[list] = []
         pbar = tqdm_(range(len(data)))
         for _ in pbar:
             pbar.set_postfix({
@@ -408,39 +465,56 @@ class BiLSTMCharFeatureRestorer:
         print(MESSAGE_SAVED_RAW_SAMPLES.format(num_samples=len(X)))
 
     # ====================
-    def datapoint_to_Xy(self, datapoint: str) -> list:
-        """Given a datapoint (i.e. a document in the data provided), generate a
-        lists of X and y values for training."""
+    def datapoint_to_Xy(self,
+                        datapoint: str
+                        ) -> Tuple[List[List[str]], List[List[str]]]:
+        """Given a datapoint (one of the 'gold standard' documents provided),
+        generate lists of X and y values for training.
+
+        Args:
+          datapoint (str):
+            A 'gold standard' document
+
+        Raises:
+          ValueError:
+            If the one_of_each attribute of the class instance is not
+            set to True. (Because the option one_of_each=False has not
+            yet been implemented)
+
+        Returns:
+          Tuple[List[List[str]], List[List[str]]]:
+            A tuple (X, y) of lists of X and y values.
+        """
 
         # TODO: Implement case where one_of_each=False
         if self.one_of_each is not True:
             raise ValueError(ERROR_ONE_OF_EACH_FALSE_NOT_IMPLEMENTED)
         chars_orig = list_gclust(datapoint)
-        chars = []
-        classes = []
+        chars: List[str] = []
+        class_lists: List[List[str]] = []
         while len(chars_orig) > 0:
             this_char = chars_orig.pop(0)
             if this_char in self.feature_chars:
                 try:
-                    classes[-1].append(this_char)
+                    class_lists[-1].append(this_char)
                 except IndexError:
                     # If there are feature chars at the start of the doc, just
                     # ignore them until the first non-feature char
                     continue
             else:
-                if self.capitalisation is True and this_char.isupper():
+                if self.capitalization is True and this_char.isupper():
                     chars.append(this_char.lower())
-                    classes.append(['U'])
+                    class_lists.append(['U'])
                 else:
                     chars.append(this_char)
-                    classes.append([])
-        if self.capitalisation is True:
+                    class_lists.append([])
+        if self.capitalization is True:
             order = ['U'] + self.feature_chars
         else:
             order = self.feature_chars
-        classes = [
+        classes: List[str] = [
             ''.join([c for c in order if c in class_])
-            for class_ in classes
+            for class_ in class_lists
         ]
         assert len(chars) == len(classes)
         # Sliding windows
@@ -455,7 +529,7 @@ class BiLSTMCharFeatureRestorer:
                     y.append(classes[i:i+self.seq_length])
                 else:
                     break
-        if self.spaces is False:
+        elif self.spaces is False:
             i = 0
             while i + self.seq_length < len(chars):
                 X.append(chars[i:i+self.seq_length])
@@ -477,13 +551,26 @@ class BiLSTMCharFeatureRestorer:
         """Tokenize outputs (y)"""
 
         print(MESSAGE_TOKENIZING_OUTPUTS)
-        self.tokenize('Y_TOKENIZER', 'Y_RAW', 'Y_TOKENIZED', oov_token=None)
+        self.tokenize('Y_TOKENIZER', 'Y_RAW', 'Y_TOKENIZED')
 
     # ====================
     def tokenize(self, tokenizer_name: str, raw_asset_name: str,
-                 tokenized_asset_name: str, oov_token: str):
+                 tokenized_asset_name: str, oov_token: Optional[str] = None):
         """Open an asset, create and fit a Keras tokenizer, tokenize the
-        asset, and save both the tokenizer and the tokenized data"""
+        asset, and save both the tokenizer and the tokenized data.
+
+        Args:
+          tokenizer_name (str):
+            The name of the tokenizer asset (e.g. 'X_TOKENIZER')
+          raw_asset_name (str):
+            The name of the asset containing the raw strings (e.g. 'X_RAW')
+          tokenized_asset_name (str):
+            The name of the asset that will contain the tokenized strings
+            (e.g. 'X_TOKENIZED')
+          oov_token (Optional[str], optional):
+            The value of the out-of-vocabulary (OOV) token for the tokenizer
+            (e.g. 'OOV'). Defaults to None (no OOV token).
+        """
 
         data = self.get_asset(raw_asset_name)
         tokenizer = Tokenizer(oov_token=oov_token, filters='')
@@ -517,7 +604,14 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def pickle_to_numpy(self, pickle_asset_name: str, numpy_asset_name: str):
         """Open a .pickle asset, convert to a numpy array, and save as a .npy
-        asset"""
+        asset
+
+        Args:
+          pickle_asset_name (str):
+            The name of the .pickle asset to load
+          numpy_asset_name (str):
+            The name of the .npy asset to save to
+        """
 
         data_pickle = self.get_asset(pickle_asset_name)
         data_np = np.array(data_pickle)
@@ -529,6 +623,12 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def preview_samples(self, k: int = 10):
+        """Display a random selection of the samples generated for training
+
+        Args:
+          k (int, optional):
+            The number of samples to display. Defaults to 10.
+        """
 
         X = self.get_asset('X', mmap=True)
         y = self.get_asset('Y', mmap=True)
@@ -553,10 +653,19 @@ class BiLSTMCharFeatureRestorer:
     # === PREPROCESSING ===
 
     # ====================
-    def preprocess_raw_str(self, raw_str):
-        """Preprocess a raw string for input to a model"""
+    def preprocess_raw_str(self, raw_str: str) -> str:
+        """Preprocess a raw string for input to the model by removing any
+        features for restoration that are present in the string.
 
-        if self.capitalisation is True:
+        Args:
+          raw_str (str):
+
+        Returns:
+          str:
+            The preprocessed string
+        """
+
+        if self.capitalization is True:
             input_str = raw_str.lower()
         else:
             input_str = raw_str
@@ -565,35 +674,68 @@ class BiLSTMCharFeatureRestorer:
         return input_str
 
     # ====================
-    def input_str_to_model_input(self, input_str):
-        """Prepare a raw string for input to a model"""
+    def input_str_to_model_input(self, input_str: str) -> np.ndarray:
+        """Prepare a raw string for input to a model by tokenizing and
+        encoding
 
-        input_str = list_gclust(input_str)
+        Args:
+          input_str (str):
+            The raw input string
+
+        Returns:
+          np.ndarray:
+            The encoded model input
+        """
+
         tokenized = self.tokenize_input_str(input_str)
         encoded = self.encode_tokenized_str(tokenized)
         return encoded
 
     # ====================
-    def tokenize_input_str(self, input_str):
-        """Tokenize an input string"""
+    def tokenize_input_str(self, input_str: str) -> np.ndarray:
+        """Tokenize an input string
 
-        input_len = len_gclust(input_str)
+        Args:
+          input_str (str):
+            The input string
+
+        Raises:
+          ValueError:
+            If the length of the input string is greater than the
+            sequence length for the class instance
+
+        Returns:
+          np.ndarray:
+            The tokenized string
+        """
+
+        input_chars: List[str] = list_gclust(input_str)
+        input_len: int = len(input_chars)
         if input_len > self.seq_length:
             error_msg = ERROR_INPUT_STR_TOO_LONG.format(
                 seq_len=self.seq_length,
                 len_input=input_len
             )
             raise ValueError(error_msg)
-        # input_str = self.impose_seq_length(input_str)
         tokenizer = self.get_asset('X_TOKENIZER')
-        tokenized = tokenizer.texts_to_sequences([input_str])
+        tokenized = tokenizer.texts_to_sequences([input_chars])
         tokenized = pad_sequences(
             tokenized, maxlen=self.seq_length, padding='post'
         )
         return tokenized
 
     # ====================
-    def encode_tokenized_str(self, tokenized: str):
+    def encode_tokenized_str(self, tokenized: np.ndarray) -> np.ndarray:
+        """Encode a tokenized input string
+
+        Args:
+          tokenized (np.ndarray):
+            The tokenized input string
+
+        Returns:
+          np.ndarray:
+            The encoded input string
+        """
 
         num_X_categories = self.get_num_categories('X_TOKENIZER') + 1
         encoded = to_categorical(tokenized, num_X_categories)
@@ -602,12 +744,27 @@ class BiLSTMCharFeatureRestorer:
     # === PREDICTION & PREVIEW
 
     # ====================
-    def Xy_to_output(self, X: list, y: list, i: int = None) -> str:
+    def Xy_to_output(self,
+                     X: np.ndarray,
+                     y: np.ndarray,
+                     sample_idx: Union[int, str] = '?') -> str:
         """Generate a raw string (text with features) from model input (X)
-        and output (y)"""
+        and output (y)
 
-        if i is None:
-            i = '?'
+        Args:
+          X (np.ndarray):
+            The encoded model input
+          y (np.ndarray):
+            The encoded model output
+          sample_idx (Union[int, str], optional):
+            The index of the sample. Used only in the warning message displayed
+            if the input and output have different lengths. Defaults to '?'.
+
+        Returns:
+          str:
+            The model output as a string
+        """
+
         assert len(X) == self.seq_length
         assert len(y) == self.seq_length
         X_tokenizer = self.get_asset('X_TOKENIZER')
@@ -617,37 +774,65 @@ class BiLSTMCharFeatureRestorer:
         len_x = len(X_decoded)
         len_y = len(y_decoded)
         if len_x != len_y:
-            print(WARNING_DIFF_LENGTHS.format(i=i, len_x=len_x, len_y=len_y))
+            print(WARNING_DIFF_LENGTHS.format(
+                i=sample_idx, len_x=len_x, len_y=len_y)
+            )
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(X_decoded, y_decoded)]
         output = ''.join(output_parts)
         return output
 
     # ====================
-    def decode_class_list(self, tokenizer, encoded: list) -> list:
+    def decode_class_list(self,
+                          tokenizer: Tokenizer,
+                          encoded: np.ndarray) -> list:
+        """Decode an encoded list of classes
+
+        Args:
+          tokenizer (Tokenizer):
+            The y tokenizer
+          encoded (np.ndarray):
+            The encoded list of classes
+
+        Returns:
+          list:
+            The decoded list of classes
+        """
 
         index_word = json.loads(tokenizer.get_config()['index_word'])
-        # TODO: Catch and print warning if not in index_word
         decoded = [self.decode_class(index_word, x) for x in encoded]
         return decoded
 
     # ====================
-    def get_num_categories(self, tokenizers: Str_or_List) -> Int_or_Tuple:
-        """Get the number of categories in one or more tokenizers.
+    def get_num_categories(self, tokenizer_name: str) -> int:
+        """Get the number of categories in a tokenizer.
 
-        If a single tokenizer name is passed, the return value is an integer.
-        If a list of tokenizer names is passed, the return value is a tuple of
-        integers."""
+        Args:
+          tokenizer_name (str):
+            The name of the asset containing the tokenizer (e.g. 'X_TOKENIZER')
 
-        tokenizers = str_or_list_to_list(tokenizers)
-        tokenizers = [self.get_asset(t) for t in tokenizers]
-        num_categories = tuple([len(t.word_index) for t in tokenizers])
-        return only_or_all(num_categories)
+        Returns:
+          int:
+            The number of categories in the tokenizer
+        """
+
+        tokenizer = self.get_asset(tokenizer_name)
+        return len(tokenizer.word_index)
 
     # ====================
-    def predict(self, raw_str: str):
+    def predict(self, raw_str: str) -> str:
         """Get the predicted output for a string of length less than or
-        equal to the model sequence length"""
+        equal to the model sequence length
+
+        Args:
+          raw_str (str):
+            An input string (e.g. 'thisisasentence')
+
+        Returns:
+          str:
+            The predicted output string (e.g. 'This is a sentence.', if
+            the model has learnt well!)
+        """        
 
         input_str = self.preprocess_raw_str(raw_str)
         X_encoded = self.input_str_to_model_input(input_str)
@@ -662,17 +847,20 @@ class BiLSTMCharFeatureRestorer:
         return output
 
     # ====================
-    def predict_docs(self, docs: Str_or_List_or_Series) -> Str_or_List:
-        """Get the predicted output for a single doc, or a list
-        or pandas Series of docs.
+    def predict_docs(self,
+                     docs: Union[str, list, pd.Series]) -> Union[str, list]:
+        """Get the predicted output for a single document, or a list or pandas
+        Series of documents.
 
-        Required arguments
-        ------------------
-        docs:                       The documents to restore features to.
-            Str_or_List_or_Series   Documents are preprocessed prior to
-                                    prediction, so docs can contain either
-                                    raw character sequences or gold standard
-                                    formatted texts.
+        Args:
+          docs (Union[str, list, pd.Series]):
+            The documents to restore features to. Documents are preprocessed
+            before restoration (prediction), so can contain either raw
+            character sequences or gold standard formatted texts.
+
+        Returns:
+          Union[str, list]:
+            The document or documents with features restored.
         """
 
         docs = str_or_list_or_series_to_list(docs)
@@ -686,7 +874,16 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def predict_single_doc(self, raw_str: str) -> str:
-        """Get the predicted output for a document (any length)."""
+        """Get the predicted output for a document (any length).
+
+        Args:
+          raw_str (str):
+            The document to restore features to.
+
+        Returns:
+          str:
+            The document with features restored.
+        """
 
         input_str = self.preprocess_raw_str(raw_str)
         if self.spaces is True:
@@ -696,10 +893,9 @@ class BiLSTMCharFeatureRestorer:
         return output
 
     # ====================
-    def predict_doc_spaces_true(self,
-                                input_str: str) -> str:
+    def predict_doc_spaces_true(self, input_str: str) -> str:
 
-        all_output = []
+        all_output: List[str] = []
         prefix = ''
         print(input_str)
         while input_str:
@@ -709,12 +905,12 @@ class BiLSTMCharFeatureRestorer:
             input_str = \
                 ''.join(list_gclust(input_str)[restore_until:])
             print(text_to_restore)
-            chunk_restored = self.predict(text_to_restore)
-            chunk_restored = chunk_restored.split(' ')
+            chunk_restored: str = self.predict(text_to_restore)
+            chunk_restored_split: List[str] = chunk_restored.split(' ')
             prefix = self.preprocess_raw_str(
-                ''.join(chunk_restored[-CHUNKER_NUM_PREFIX_WORDS:])
+                ''.join(chunk_restored_split[-CHUNKER_NUM_PREFIX_WORDS:])
             )
-            all_output.extend(chunk_restored[:-CHUNKER_NUM_PREFIX_WORDS])
+            all_output.extend(chunk_restored_split[:-CHUNKER_NUM_PREFIX_WORDS])
         output = ' '.join(all_output)
         # Add any text remaining in 'prefix'
         if prefix:
@@ -725,7 +921,7 @@ class BiLSTMCharFeatureRestorer:
     # ====================
     def predict_doc_spaces_false(self, input_str: str) -> str:
 
-        all_output = []
+        all_output: List[str] = []
         prefix = ''
         while input_str:
             restore_until = self.seq_length - len(prefix)

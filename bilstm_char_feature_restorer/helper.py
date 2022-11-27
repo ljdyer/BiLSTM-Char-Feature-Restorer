@@ -69,8 +69,7 @@ def only_or_all(input_: List_or_Tuple) -> Any:
 
 
 # ====================
-def str_or_list_or_series_to_list(
-     input_: Str_or_List_or_Series) -> list:
+def str_or_list_or_series_to_list(input_: Union[str, list, pd.Series]) -> list:
 
     if isinstance(input_, str):
         return [input_]
