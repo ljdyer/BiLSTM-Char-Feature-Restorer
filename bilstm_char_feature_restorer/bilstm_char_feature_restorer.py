@@ -12,22 +12,27 @@ from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
 from tensorflow.keras.utils import to_categorical
 
-from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search import \
-    BiLSTMCharFeatureRestorerGridSearch
+from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search \
+    import BiLSTMCharFeatureRestorerGridSearch
 from bilstm_char_feature_restorer.bilstm_char_feature_restorer_model import \
     BiLSTMCharFeatureRestorerModel
-from bilstm_char_feature_restorer.helper import (
-    Int_or_Tuple, Str_or_List, Str_or_List_or_Series, display_dict,
-    display_or_print, get_tqdm, len_gclust, list_gclust, load_file,
-    mk_dir_if_does_not_exist, only_or_all, save_file, show_ram_used,
-    str_or_list_or_series_to_list, str_or_list_to_list)
+from bilstm_char_feature_restorer.helper import (Int_or_Tuple, Str_or_List,
+                                                 Str_or_List_or_Series,
+                                                 display_dict,
+                                                 display_or_print, get_tqdm,
+                                                 len_gclust, list_gclust,
+                                                 load_file,
+                                                 mk_dir_if_does_not_exist,
+                                                 only_or_all, save_file,
+                                                 show_ram_used,
+                                                 str_or_list_or_series_to_list,
+                                                 str_or_list_to_list)
 
-CLASS_ATTRS_FNAME = 'CLASS_ATTRS.pickle'
 MODELS_PATH_NAME = 'models'
 GRID_SEARCH_PATH_NAME = 'grid_search'
 
 ASSETS = {
-    'CLASS_ATTRS': CLASS_ATTRS_FNAME,
+    'CLASS_ATTRS': 'CLASS_ATTRS.pickle',
     'X_TOKENIZER': 'X_TOKENIZER.pickle',
     'Y_TOKENIZER': 'Y_TOKENIZER.pickle',
     'X_RAW': 'X_RAW.pickle',
@@ -39,12 +44,13 @@ ASSETS = {
 }
 
 # General messages
-SAVED_RAW_SAMPLES = "Saved {num_samples} samples in 'X_RAW' and 'Y_RAW'"
-SAVED_TOKENIZER = """Saved tokenizer with {num_categories} \
+MESSAGE_SAVED_RAW_SAMPLES = """Saved {num_samples} samples in 'X_RAW' \
+and 'Y_RAW'"""
+MESSAGE_SAVED_TOKENIZER = """Saved tokenizer with {num_categories} \
 categories to {tokenizer_name}."""
-SAVED_NUMPY_ARRAY = """Saved numpy array with shape {shape} to \
+MESSAGE_SAVED_NUMPY_ARRAY = """Saved numpy array with shape {shape} to \
 {numpy_asset_name}."""
-SAVED_TOKENIZED_SAMPLES = """Saved {num_samples} tokenized samples to \
+MESSAGE_SAVED_TOKENIZED_SAMPLES = """Saved {num_samples} tokenized samples to \
 {tokenized_asset_name}."""
 
 MESSAGE_GRID_SEARCH_EXISTS = """\
@@ -117,58 +123,48 @@ class BiLSTMCharFeatureRestorer:
                  seq_length: int,
                  one_of_each: bool = True,
                  char_shift: int = None):
-        """Initialize a new instance of the BiLSTMCharFeatureRestorer class
+        """Initialize and train an instance of the class.
 
-        Required arguments:
-        -------------------
-        root_folder: str            The folder that will contain information
-                                    about the instance to load later, as well
-                                    as all assets such as input data and
-                                    trained model weights.
-                                    This folder will be created if it does not
-                                    already exist.
+        Args:
+          root_folder (str):
+            The path to a folder to which to save model assets. The folder
+            should not exist yet. It will be created.
+          capitalisation (bool):
+            Whether or not models trained on the instance will attempt to 
+            restore capitalisation (e.g. convert 'new york' to 'New York').
+          spaces (bool):
+            Whether or not models trained on the instance will attempt to
+            restore spaces. (e.g. convert 'goodmorning' to 'good morning')
+          other_features (list):
+            A list of other characters that models trained on the instance
+            will restore.
+            E.g. to restore commas and periods, set other_features=['.', ','].
+            The order in which the characters appear in output texts if a
+            single character possesses more than one feature will be the
+            same as the order in which they appear in this list.
+            Spaces will appear after features in other_features.
+          seq_length (int):
+            The length in characters of model input sequences used for
+            preprocessing, training, and prediction.
+          one_of_each (bool, optional): 
+            If set to True, the model will only restore a maximum of one
+            of each feature per character. E.g. '...' will never appear in
+            output texts.
+            If set to False, the model will restore an arbitrary number of
+            each feature if it deems that more than one of a feature is
+            appropriate. (Not implemented yet at the time of writing.)
+            Defaults to True.
+          char_shift (int, optional): 
+            Only required if spaces=False. The step size in characters for
+            the sliding window when generating input data. Smaller values
+            of char_shift generate larger numbers of training examples.
+            Defaults to None.
 
-        capitalisation: bool        Whether or not models trained on the
-                                    instance will restore capitalisation.
-
-        spaces: bool                Whether or not models trained on the
-                                    instance will restore spaces.
-
-        other_features: list        A list of other characters that models
-                                    trained on the instance will restore.
-                                    E.g. to restore commas and periods, set
-                                    other_features=['.', ','].
-                                    The order in which the characters appear
-                                    in output texts if a single character
-                                    possesses more than one feature will be
-                                    the same as the order in which they appear
-                                    in this list.
-                                    Spaces will appear after features in
-                                    other_features.
-
-        seq_length: int             The length in characters of model input
-                                    sequences used for preprocessing, training,
-                                    and prediction.
-
-        one_of_each: bool           If set to True, the model will only
-                                    restore a maximum of one of each feature
-                                    per character. E.g. '...' will never appear
-                                    in output texts.
-                                    If set to False, the model will restore an
-                                    arbitrary number of each feature (provided
-                                    that examples exist in the training data).
-                                    (Not implemented yet at the time of
-                                    writing.)
-
-        Optional keyword arguments:
-        ---------------------------
-        char_shift: int = None      Only required if spaces=False.
-                                    The step size in characters for the
-                                    sliding window when generating input data.
-                                    Smaller values of char_shift generate
-                                    larger numbers of training examples.
-
-
+        Raises:
+          ValueError:
+            If a folder already exists at root_folder.
+          ValueError:
+            If spaces=False but char_shift has not been provided.
         """
 
         if os.path.exists(root_folder):
@@ -200,14 +196,16 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     @classmethod
-    def load(cls, root_folder: str):
-        """Load a saved instance of the BiLSTMCharFeatureRestorer class.
+    def load(cls, root_folder: str) -> 'BiLSTMCharFeatureRestorer':
+        """Load a saved class instance.
 
-        Required arguments:
-        -------------------
+        Args:
+          root_folder (str):
+            The root folder where the assets for the class instance are saved.
 
-        root_folder: str            The root folder that was specified
-                                    when the instance was created.
+        Returns:
+          BiLSTMCharFeatureRestorer:
+            The loaded class instance.
         """
 
         self = cls.__new__(cls)
@@ -220,6 +218,7 @@ class BiLSTMCharFeatureRestorer:
 
     # ====================
     def save(self):
+        """Save the attributes of the current class instance."""
 
         attrs = self.__dict__.copy()
         if 'model' in attrs:
@@ -404,7 +403,7 @@ class BiLSTMCharFeatureRestorer:
                 y.extend(y_)
         self.save_asset(X, 'X_RAW')
         self.save_asset(y, 'Y_RAW')
-        print(SAVED_RAW_SAMPLES.format(num_samples=len(X)))
+        print(MESSAGE_SAVED_RAW_SAMPLES.format(num_samples=len(X)))
 
     # ====================
     def datapoint_to_Xy(self, datapoint: str) -> list:
@@ -489,12 +488,12 @@ class BiLSTMCharFeatureRestorer:
         tokenizer.fit_on_texts(data)
         tokenized = tokenizer.texts_to_sequences(data)
         self.save_asset(tokenized, tokenized_asset_name)
-        print(SAVED_TOKENIZED_SAMPLES.format(
+        print(MESSAGE_SAVED_TOKENIZED_SAMPLES.format(
             num_samples=len(tokenized),
             tokenized_asset_name=tokenized_asset_name
         ))
         self.save_asset(tokenizer, tokenizer_name)
-        print(SAVED_TOKENIZER.format(
+        print(MESSAGE_SAVED_TOKENIZER.format(
             num_categories=self.get_num_categories(tokenizer_name),
             tokenizer_name=tokenizer_name
         ))
@@ -521,7 +520,7 @@ class BiLSTMCharFeatureRestorer:
         data_pickle = self.get_asset(pickle_asset_name)
         data_np = np.array(data_pickle)
         self.save_asset(data_np, numpy_asset_name)
-        print(SAVED_NUMPY_ARRAY.format(
+        print(MESSAGE_SAVED_NUMPY_ARRAY.format(
             shape=str(data_np.shape),
             numpy_asset_name=numpy_asset_name
         ))
@@ -658,6 +657,7 @@ class BiLSTMCharFeatureRestorer:
         output_parts = [self.char_and_class_to_output_str(X_, y_)
                         for X_, y_ in zip(input_str, y_decoded)]
         output = ''.join(output_parts)
+        print(output)
         return output
 
     # ====================
