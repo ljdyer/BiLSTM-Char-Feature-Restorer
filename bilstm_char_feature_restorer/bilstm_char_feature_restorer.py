@@ -700,12 +700,14 @@ class BiLSTMCharFeatureRestorer:
 
         all_output = []
         prefix = ''
+        print(input_str)
         while input_str:
             restore_until = self.seq_length - len_gclust(prefix)
             text_to_restore = \
                 prefix + ''.join(list_gclust(input_str)[:restore_until])
             input_str = \
                 ''.join(list_gclust(input_str)[restore_until:])
+            print(text_to_restore)
             chunk_restored = self.predict(text_to_restore)
             chunk_restored = chunk_restored.split(' ')
             prefix = self.preprocess_raw_str(
