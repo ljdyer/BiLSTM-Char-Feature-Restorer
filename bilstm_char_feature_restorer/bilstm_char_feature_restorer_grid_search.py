@@ -161,6 +161,8 @@ class BiLSTMCharFeatureRestorerGridSearch:
                 gs_row = {**model_args, 'Exception': e}
             log_df = log_df.append(gs_row, ignore_index=True)
             self.save_log(log_df)
+        try_clear_output()
+        display_or_print(log_df)
 
     # ====================
     def grid_search_folder(self):
