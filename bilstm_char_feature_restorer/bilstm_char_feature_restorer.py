@@ -11,7 +11,7 @@ import psutil
 import tensorflow
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing.text import Tokenizer
-from tensorflow.keras.utils import to_categorical   # type: ignore
+from tensorflow.keras.utils import to_categorical  # type: ignore
 
 from bilstm_char_feature_restorer.bilstm_char_feature_restorer_grid_search \
     import BiLSTMCharFeatureRestorerGridSearch
@@ -22,6 +22,7 @@ from bilstm_char_feature_restorer.helper import (display_dict,
                                                  len_gclust, list_gclust,
                                                  load_file,
                                                  mk_dir_if_does_not_exist,
+                                                 object_or_list_to_list,
                                                  only_or_all, save_file,
                                                  show_ram_used,
                                                  str_or_list_or_series_to_list)
@@ -996,6 +997,8 @@ class BiLSTMCharFeatureRestorer:
 
         attrs = locals()
         del attrs['self']
+        for attr in ['units', 'batch_size', 'dropout', 'recur_dropout']:
+            attrs[attr] = object_or_list_to_list(attrs[attr])
         self.grid_search = BiLSTMCharFeatureRestorerGridSearch(self, **attrs)
 
     # ====================

@@ -89,6 +89,16 @@ def str_or_list_to_list(input_: Union[str, list]) -> list:
 
 
 # ====================
+def object_or_list_to_list(input_: Any) -> list:
+
+    if isinstance(input_, list):
+        return input_
+    else:
+        return [input_]
+
+
+
+# ====================
 def mk_dir_if_does_not_exist(path):
 
     if not os.path.exists(path):

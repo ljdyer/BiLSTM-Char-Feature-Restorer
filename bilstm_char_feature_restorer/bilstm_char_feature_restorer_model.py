@@ -176,9 +176,9 @@ class BiLSTMCharFeatureRestorerModel:
     def train(self, epochs: int):
         """Train the model.
 
-        Required arguments:
-        -------------------
-        epochs: int             The number of epochs to train for.
+        Args:
+          epochs (int):
+            The number of epochs to train for
         """
 
         last_epoch = self.last_epoch()

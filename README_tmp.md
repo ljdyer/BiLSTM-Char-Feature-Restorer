@@ -1,5 +1,6 @@
 [-^TARGET=README.md
 [-^BCFR=bilstm_char_feature_restorer/bilstm_char_feature_restorer.py
+[-^BCFRmodel=bilstm_char_feature_restorer/bilstm_char_feature_restorer_model.py
 # BiLSTM Char Feature Restorer
 
 A Python library for training character-level BiLSTM models for restoration of features such as spaces, punctuation, and capitalization to unformatted texts.
@@ -31,7 +32,7 @@ from bilstm_char_feature_restorer import BiLSTMCharFeatureRestorer
 
 ## Model training and feature restoration using the `BiLSTMFeatureRestorer` class
 
-Multiple models can be trained on a single class instance. A single instance is used to train models using the same training data to restore the same set of features, so in our paper we used separate instances for each of **TedTalks**, **Brown**, **OshieteQA**, and **GujaratiNews**.
+Multiple models can be trained on a single class instance. A single instance is used to train models using the same training data to restore the same set of features, so in the paper we used separate instances for each of **TedTalks**, **Brown**, **OshieteQA**, and **GujaratiNews**.
 
 ### Initialize a class instance
 
@@ -53,4 +54,73 @@ restorer = BiLSTMCharFeatureRestorer(
 
 <img src="readme-img/01-init.PNG"></img>
 
-To be continued...
+### Load training data
+
+#### `BiLSTMCharFeatureRestorer.load_data`
+
+[-*func_or_method BCFR>load_data
+
+#### Example usage:
+
+```python
+train_data = train['reference'].to_list()
+restorer.load_data(train_data)
+```
+
+<img src="readme-img/02-load_data.PNG"></img>
+
+### Add a model
+
+#### `BiLSTMCharFeatureRestorer.add_model`
+
+[-*func_or_method BCFR>add_model
+
+#### Example usage:
+
+```python
+restorer.add_model(
+    model_name='model_1',
+    units=256,
+    batch_size=2048,
+    dropout=0,
+    recur_dropout=0,
+    keep_size=1,
+    val_size=0.2
+)
+```
+
+<img src="readme-img/03-add_model.PNG"></img>
+
+### Train a model
+
+#### `BiLSTMCharFeatureRestorerModel.train`
+
+[-*func_or_method BCFRmodel>train
+
+#### Example usage:
+
+```python
+restorer.model.train(epochs=10)
+```
+
+<img src="readme-img/04-train.PNG"></img>
+
+### Restore features to documents
+
+#### `BiLSTMCharFeatureRestorer.predict_docs`
+
+[-*func_or_method BCFR>predict_docs
+
+#### Example usage:
+
+```python
+restorer.predict_docs(test['input'].to_list())[0]
+```
+
+<img src="readme-img/05-predict_docs.PNG"></img>
+
+### Run a grid search (not included in the interactive demo)
+
+#### `BiLSTMCharFeatureRestorer.add_grid_search`
+
+[-*func_or_method BCFR>add_grid_search
