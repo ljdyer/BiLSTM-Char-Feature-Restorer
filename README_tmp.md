@@ -1,6 +1,7 @@
 [-^TARGET=README.md
 [-^BCFR=bilstm_char_feature_restorer/bilstm_char_feature_restorer.py
 [-^BCFRmodel=bilstm_char_feature_restorer/bilstm_char_feature_restorer_model.py
+[-^BCFRgs=bilstm_char_feature_restorer/bilstm_char_feature_restorer_grid_search.py
 # BiLSTM Char Feature Restorer
 
 A Python library for training character-level BiLSTM models for restoration of features such as spaces, punctuation, and capitalization to unformatted texts.
@@ -47,7 +48,7 @@ restorer = BiLSTMCharFeatureRestorer(
     root_folder='drive/MyDrive/BiLSTMCharFeatureRestorer_demo',
     capitalization=True,
     spaces=True,
-    other_features=[',', '.'],
+    other_features=['.', ','],
     seq_length=200
 )
 ```
@@ -68,6 +69,43 @@ restorer.load_data(train_data)
 ```
 
 <img src="readme-img/02-load_data.PNG"></img>
+
+### Add and run a grid search to find optimal hyperparameters
+
+#### `BiLSTMCharFeatureRestorer.add_grid_search`
+
+[-*func_or_method BCFR>add_grid_search
+
+#### Example usage:
+
+```python
+restorer.add_grid_search(
+    grid_search_name='grid_search_1',
+    units=[128, 256],
+    batch_size=[1024, 2048],
+    dropout=0,
+    recur_dropout=0,
+    keep_size=1,
+    val_size=0.2,
+    epochs=1
+)
+```
+
+<img src="readme-img/02a-add_grid_search.PNG"></img>
+
+### Display the optimal hyperparameters from the current grid search
+
+#### `BiLSTMCharFeatureRestorerGridSearch.show_max`
+
+[-*func_or_method BCFRgs>show_max
+
+#### Example usage:
+
+```python
+restorer.grid_search.show_max()
+```
+
+<img src="readme-img/02b-show_max.PNG"></img>
 
 ### Add a model
 
@@ -118,9 +156,3 @@ restorer.predict_docs(test['input'].to_list())[0]
 ```
 
 <img src="readme-img/05-predict_docs.PNG"></img>
-
-### Run a grid search (not included in the interactive demo)
-
-#### `BiLSTMCharFeatureRestorer.add_grid_search`
-
-[-*func_or_method BCFR>add_grid_search

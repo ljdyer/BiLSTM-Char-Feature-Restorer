@@ -208,6 +208,13 @@ class BiLSTMCharFeatureRestorerGridSearch:
 
     # ====================
     def show_max(self, col: str = 'val_accuracy'):
+        """Display the row from the grid search df for which the value in the
+        column specified is maximized.
+
+        Args:
+          col (str, optional):
+            The column to maximize. Defaults to 'val_accuracy'.
+        """
 
         log_df = self.get_log_df()
         col_vals = log_df[col].to_list()

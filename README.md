@@ -97,7 +97,7 @@ restorer = BiLSTMCharFeatureRestorer(
     root_folder='drive/MyDrive/BiLSTMCharFeatureRestorer_demo',
     capitalization=True,
     spaces=True,
-    other_features=[',', '.'],
+    other_features=['.', ','],
     seq_length=200
 )
 ```
@@ -134,6 +134,93 @@ restorer.load_data(train_data)
 ```
 
 <img src="readme-img/02-load_data.PNG"></img>
+
+### Add and run a grid search to find optimal hyperparameters
+
+#### `BiLSTMCharFeatureRestorer.add_grid_search`
+
+```python
+    # ====================
+    def add_grid_search(self,
+                        grid_search_name: str,
+                        units: Union[int, list],
+                        batch_size: Union[int, list],
+                        dropout: Union[float, list],
+                        recur_dropout: Union[float, list],
+                        keep_size: float,
+                        val_size: float,
+                        epochs: int):
+        """Add a grid search to the class instance.
+
+        Args:
+          grid_search_name (str):
+            A name for the grid search (e.g. 'grid_search_1')
+          units (Union[int, list]):
+            The number of BiLSTM units. Either a single number (e.g. 256)
+            or a list of numbers to generate parameter combinations
+            (e.g. [64, 128, 256]).
+          batch_size (Union[int, list]):
+            The batch size. Either a single number (e.g. 2048)
+            or a list of numbers to generate parameter combinations
+            (e.g. [2048, 4096, 8192]).
+          dropout (Union[float, list]):
+            The forward dropout rate. Either a single number (e.g. 0.1)
+            or a list of numbers to generate parameter combinations
+            (e.g. [0, 0.1, 0.2]).
+          recur_dropout (Union[float, list]):
+            The recurrent (backward) dropout rate. Either a single number
+            (e.g. 0.1) or a list of numbers to generate parameter
+            combinations (e.g. [0, 0.1, 0.2]).
+          keep_size (float):
+            The proportion of the loaded data to use in grid searches (e.g. )
+          val_size (float):
+            The proportion of data to use for validation.
+            E.g. set val_size=0.2 for an 80/20 train/val split.
+          epochs (int):
+            How many epochs to train for with each parameter combination.
+        """
+```
+
+#### Example usage:
+
+```python
+restorer.add_grid_search(
+    grid_search_name='grid_search_1',
+    units=[128, 256],
+    batch_size=[1024, 2048],
+    dropout=0,
+    recur_dropout=0,
+    keep_size=1,
+    val_size=0.2,
+    epochs=1
+)
+```
+
+<img src="readme-img/02a-add_grid_search.PNG"></img>
+
+### Display the optimal hyperparameters from the current grid search
+
+#### `BiLSTMCharFeatureRestorerGridSearch.show_max`
+
+```python
+    # ====================
+    def show_max(self, col: str = 'val_accuracy'):
+        """Display the row from the grid search df for which the value in the
+        column specified is maximized.
+
+        Args:
+          col (str, optional):
+            The column to maximize. Defaults to 'val_accuracy'.
+        """
+```
+
+#### Example usage:
+
+```python
+restorer.grid_search.show_max()
+```
+
+<img src="readme-img/02b-show_max.PNG"></img>
 
 ### Add a model
 
@@ -249,50 +336,4 @@ restorer.model.train(epochs=10)
 restorer.predict_docs(test['input'].to_list())[0]
 ```
 
-<img src="readme-img/04-train.PNG"></img>
-
-### Run a grid search (not included in the interactive demo)
-
-#### `BiLSTMCharFeatureRestorer.add_grid_search`
-
-```python
-    # ====================
-    def add_grid_search(self,
-                        grid_search_name: str,
-                        units: Union[int, list],
-                        batch_size: Union[int, list],
-                        dropout: Union[float, list],
-                        recur_dropout: Union[float, list],
-                        keep_size: float,
-                        val_size: float,
-                        epochs: int):
-        """Add a grid search to the class instance.
-
-        Args:
-          grid_search_name (str):
-            A name for the grid search (e.g. 'grid_search_1')
-          units (Union[int, list]):
-            The number of BiLSTM units. Either a single number (e.g. 256)
-            or a list of numbers to generate parameter combinations
-            (e.g. [64, 128, 256]).
-          batch_size (Union[int, list]):
-            The batch size. Either a single number (e.g. 2048)
-            or a list of numbers to generate parameter combinations
-            (e.g. [2048, 4096, 8192]).
-          dropout (Union[float, list]):
-            The forward dropout rate. Either a single number (e.g. 0.1)
-            or a list of numbers to generate parameter combinations
-            (e.g. [0, 0.1, 0.2]).
-          recur_dropout (Union[float, list]):
-            The recurrent (backward) dropout rate. Either a single number
-            (e.g. 0.1) or a list of numbers to generate parameter
-            combinations (e.g. [0, 0.1, 0.2]).
-          keep_size (float):
-            The proportion of the loaded data to use in grid searches (e.g. )
-          val_size (float):
-            The proportion of data to use for validation.
-            E.g. set val_size=0.2 for an 80/20 train/val split.
-          epochs (int):
-            How many epochs to train for with each parameter combination.
-        """
-```
+<img src="readme-img/05-predict_docs.PNG"></img>
