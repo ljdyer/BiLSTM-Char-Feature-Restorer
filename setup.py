@@ -4,7 +4,7 @@ REQUIREMENTS = [
     'tensorflow',
     'keras==2.8.0',
     'tqdm',
-    'sklearn',
+    'scikit-learn',
     'uniseg',
     'pandas',
     'psutil'
