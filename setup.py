@@ -12,7 +12,7 @@ REQUIREMENTS = [
 
 setup(
     name='bilstm_char_feature_restorer',
-    version='1.0',
+    version='1.1',
     description="""\
 Train character-level BiLSTM models for restoration of features such as \
 spaces, punctuation, and capitalization to unformatted texts\
